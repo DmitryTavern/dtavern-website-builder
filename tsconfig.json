@@ -1,0 +1,9 @@
+{
+	"ts-node": {
+		"compilerOptions": {
+			"module": "commonjs"
+		}
+	},
+	"include": ["scripts/**/*", "gulpfile.ts"],
+	"exclude": ["node_modules", "**/*.spec.ts"]
+}

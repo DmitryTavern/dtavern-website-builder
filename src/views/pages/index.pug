@@ -1,0 +1,19 @@
+extends ../layouts/default
+include ./index/help
+
+block head
+	title Homepage | Fifty Shades Sho
+	+style('index.css')
+
+block content
+	main
+		| sdfsdf
+
+		+img({ src: 'app-image-packing-losd' })
+
+		+svg('logo')
+
+		+help
+
+block script
+	+script('index.js')

@@ -1,0 +1,33 @@
+include ../helpers/style
+include ../helpers/font
+include ../helpers/script
+include ../helpers/img
+
+doctype html
+html(lang='en')
+	head
+		meta(charset='UTF-8')
+		meta(http-equiv='X-UA-Compatible', content='IE=edge')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		meta(name='description', content='')
+		link(rel='manifest', href='img/favicon/site.webmanifest')
+
+		+style('style.css')
+
+		block head
+			title Title
+
+		+font('Roboto/Roboto-Regular.ttf')
+
+	body 
+		block header
+
+		block content
+			main
+
+		block footer
+
+		+script('vendor/jquery.min.js')
+		+script('common.js')
+
+		block script

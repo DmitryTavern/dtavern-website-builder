@@ -1,0 +1,18 @@
+$grid-breakpoint-xs: 480px; // xs - <=480px   - mobile
+$grid-breakpoint-sm: 578px; // sm - >=578px   - tablet (portrait)
+$grid-breakpoint-md: 768px; // md - >=768px   - tablet (landscape)
+$grid-breakpoint-lg: 1025px; // lg - >=1024px  - laptop
+$grid-breakpoint-xl: 1440px; // xl - >=1440px  - desktop
+$grid-breakpoint-xx: 1921px; // xx - >=1921px  - 4k, large screen
+
+$font-base: "Roboto", sans-serif;
+$font-size-base: 16px;
+
+// Color
+
+$color-while: #ffffff;
+$color-text: #000000;
+
+// Animations
+
+$time-default: 0.3s;

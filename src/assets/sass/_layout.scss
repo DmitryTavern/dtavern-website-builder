@@ -1,0 +1,20 @@
+.container {
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 1px;
+
+  @include media-md {
+    max-width: $grid-breakpoint-md;
+  }
+
+  @include media-lg {
+    max-width: $grid-breakpoint-lg;
+  }
+
+  @include media-xl {
+    max-width: $grid-breakpoint-xl;
+  }
+}

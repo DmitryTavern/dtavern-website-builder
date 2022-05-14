@@ -1,0 +1,8 @@
+mixin img({ src, classes, alt, width, height })
+	picture
+		source(srcset='img/' + src + '.webp', type='image/webp')
+		img(src='img/' + src + '.png', class=classes, alt=alt, width=width, height=height)
+
+mixin svg(icon, classes)
+	svg(class=classes)
+		use(xlink:href='img/sprite.svg#' + icon)
