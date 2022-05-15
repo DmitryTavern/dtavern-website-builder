@@ -1,3 +1,7 @@
 mixin style(url='')
-	link(href='css/' + url, rel='preload', as='style')
-	link(rel='stylesheet', href='css/' + url)
+	link(
+		href=process.env.APP_BUILD_STYLES_DIRNAME + '/' + url,
+		rel='preload',
+		as='style'
+	)
+	link(rel='stylesheet', href=process.env.APP_BUILD_STYLES_DIRNAME + '/' + url)

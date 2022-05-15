@@ -1,2 +1,2 @@
 mixin script(url='')
-	script(src='js/' + url)
+	script(src=process.env.APP_BUILD_SCRIPTS_DIRNAME + '/' + url)
