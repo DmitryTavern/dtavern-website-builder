@@ -51,9 +51,6 @@ export default taskWrap('[task]: run pages services', (done: any) => {
 
 	gulp.watch(
 		[VIEWS_PUG, COMPONENTS_PUG, `!${PAGES_ALL_PUG}`],
-		{
-			ignoreInitial: false,
-		},
 		compiler(PAGES_PUG)
 	)
 })

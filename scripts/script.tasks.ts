@@ -81,12 +81,10 @@ export default taskWrap('[task]: run scripts services', (done: any) => {
 	}
 
 	watchViews(PAGES_JS, compiler)
+	compiler(SCRIPTS_COMMON_JS)(null)
 
 	gulp.watch(
 		[SCRIPTS_JS, COMPONENTS_JS, `!${SCRIPTS_VENDOR_JS}`],
-		{
-			ignoreInitial: false,
-		},
 		gulp.series(compiler(SCRIPTS_COMMON_JS), compiler(PAGES_JS))
 	)
 
@@ -97,5 +95,4 @@ export default taskWrap('[task]: run scripts services', (done: any) => {
 		},
 		vendorCompiler()
 	)
-}
-)
+})

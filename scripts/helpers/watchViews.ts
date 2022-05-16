@@ -17,6 +17,6 @@ export default (files: string, compiler: types.Compiler) => {
 
 			fn.displayName = `compiling ${pagename} page`
 
-			gulp.watch([path, pathDir], fn)
+			gulp.watch([path, pathDir], { ignoreInitial: false }, fn)
 		})
 }

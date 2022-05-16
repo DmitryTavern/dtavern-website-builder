@@ -78,10 +78,7 @@ export default taskWrap('[task]: run styles services', (done: any) => {
 	}
 
 	watchViews(PAGES_SASS, compiler)
-	gulp.series(
-		compiler(STYLES_COMMON_SASS, '[sass]: compiling common file'),
-		compiler(PAGES_SASS)
-	)(null)
+	compiler(STYLES_COMMON_SASS, '[sass]: compiling common file')(null)
 
 	gulp.watch(
 		[COMPONENTS_SASS],
@@ -95,5 +92,4 @@ export default taskWrap('[task]: run styles services', (done: any) => {
 		[STYLES_SASS],
 		compiler(STYLES_COMMON_SASS, '[sass]: compiling common file')
 	)
-}
-)
+})
