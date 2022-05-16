@@ -1,6 +1,9 @@
+// Import core
 @import 'variables';
 @import 'helpers';
 @import "base";
 @import 'layout';
 @import 'typography';
 
+// Import global components
+@import "global";

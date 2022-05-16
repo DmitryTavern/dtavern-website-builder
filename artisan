@@ -8,6 +8,7 @@ const { mkdir } = require('./scripts/helpers/mkdir')
 const { log, error } = require('./scripts/helpers/logger')
 const { capitalize } = require('./scripts/helpers/textTransformUtils')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
+const { componentInjector } = require('./scripts/helpers/componentInjector')
 
 const {
 	APP_PAGES_DIR,
@@ -21,6 +22,7 @@ const {
 	ARTISAN_TEMPLATE_SCSS_COMPONENT,
 	ARTISAN_TEMPLATE_JS_COMPONENT,
 	ARTISAN_COMPONENT_CATEGORIES,
+	ARTISAN_COMPONENT_AUTOIMPORT,
 } = process.env
 
 program.name('artisan').option('-f, --force', 'force command')
@@ -76,7 +78,7 @@ program
 					? `block script\n\t+script('${name}.js')\n`
 					: ''
 
-				templateLoader
+				templateLoader()
 					.load(ARTISAN_TEMPLATE_PUG_PAGE)
 					.replace('@-title', titleContent)
 					.replace('@-style', styleContent)
@@ -84,8 +86,8 @@ program
 					.write(pugPath)
 
 				if (scss)
-					templateLoader.load(ARTISAN_TEMPLATE_SCSS_PAGE).write(scssPath)
-				if (js) templateLoader.load(ARTISAN_TEMPLATE_JS_PAGE).write(jsPath)
+					templateLoader().load(ARTISAN_TEMPLATE_SCSS_PAGE).write(scssPath)
+				if (js) templateLoader().load(ARTISAN_TEMPLATE_JS_PAGE).write(jsPath)
 
 				log(`Page '${name}.pug' success added`)
 			})
@@ -97,9 +99,22 @@ program
 	.description('create new component')
 	.option('-f', 'force creating')
 	.action((options) => {
+		if (ARTISAN_COMPONENT_AUTOIMPORT) {
+			const pages = fs
+				.readdirSync(APP_PAGES_DIR)
+				.filter((file) => path.extname(file) === '.pug')
+
+			createComponentQuestions.push({
+				type: 'list',
+				name: 'namespace',
+				message: 'Where to connect this component?',
+				choices: ['global', 'none', ...pages],
+			})
+		}
+
 		inquirer
 			.prompt(createComponentQuestions)
-			.then(({ name, category, pug, scss, js }) => {
+			.then(({ name, category, pug, scss, js, namespace }) => {
 				const typePath = path.join(APP_COMPONENTS_DIR, category)
 				const componentPath = path.join(typePath, name)
 
@@ -112,28 +127,45 @@ program
 				mkdir(componentPath)
 
 				if (pug) {
-					templateLoader
+					templateLoader()
 						.load(ARTISAN_TEMPLATE_PUG_COMPONENT)
 						.replace('@-mixin', `mixin ${name}\n\t.${name}\n`)
 						.write(path.join(componentPath, `${name}.pug`))
+
+					componentInjector('pug')
+						.setNamespace(namespace)
+						.setPath(path.join(componentPath, name))
+						.write()
 				}
 
 				if (scss) {
-					templateLoader
+					templateLoader()
 						.load(ARTISAN_TEMPLATE_SCSS_COMPONENT)
 						.replace('@-class', `.${name} {\n\t\n}\n`)
 						.write(path.join(componentPath, `${name}.scss`))
+
+					componentInjector('scss')
+						.setNamespace(namespace)
+						.setPath(path.join(componentPath, name))
+						.write()
 				}
 
 				if (js) {
-					templateLoader
+					templateLoader()
 						.load(ARTISAN_TEMPLATE_JS_COMPONENT)
 						.write(path.join(componentPath, `${name}.js`))
+
+					componentInjector('js')
+						.setNamespace(namespace)
+						.setPath(path.join(componentPath, name))
+						.write()
 				}
 
 				log(`Component '${name}' success added`)
 			})
-			.catch(inquirerError)
+			.catch((err) => {
+				console.error(err)
+			})
 	})
 
 program.parse()
