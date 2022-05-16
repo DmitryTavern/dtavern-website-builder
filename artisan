@@ -1,0 +1,203 @@
+require('dotenv/config')
+const fs = require('fs')
+const path = require('path')
+const inquirer = require('inquirer')
+const { program } = require('commander')
+
+const {
+	APP_PAGES_DIR,
+	APP_PAGES_STYLES_DIR,
+	APP_PAGES_SCRIPTS_DIR,
+	APP_COMPONENTS_DIR,
+	ARTISAN_TEMPLATES_DIR,
+	ARTISAN_TEMPLATE_PUG_PAGE,
+	ARTISAN_TEMPLATE_SCSS_PAGE,
+	ARTISAN_TEMPLATE_JS_PAGE,
+	ARTISAN_TEMPLATE_PUG_COMPONENT,
+	ARTISAN_TEMPLATE_SCSS_COMPONENT,
+	ARTISAN_TEMPLATE_JS_COMPONENT,
+} = process.env
+
+program.name('artisan')
+
+function capitalize(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+function error(content, ...args) {
+	console.error('\033[38;2;255;70;70m', '[error]:\x1b[0m', content, ...args)
+}
+
+function log(content, ...args) {
+	console.log('\033[38;2;0;200;250m', '[log]:\x1b[0m', content, ...args)
+}
+
+function loadTemplate(name) {
+	const templatePath = path.join(ARTISAN_TEMPLATES_DIR, name)
+
+	if (!fs.existsSync(templatePath)) {
+		error(`Template '${name}' not found`)
+		const actionsError = {
+			replace: () => actionsError,
+			write: () => {},
+		}
+		return actionsError
+	}
+
+	let template = fs.readFileSync(templatePath, 'utf-8')
+
+	const actions = {
+		replace: (regex, content) => {
+			template = template.replace(`\/\/ ${regex}\n`, `${content}`)
+			return actions
+		},
+		write: (path) => {
+			return fs.writeFileSync(path, template, 'utf-8')
+		},
+	}
+
+	return actions
+}
+
+program
+	.command('create:page')
+	.description('create new page')
+	.option('-f', 'force creating')
+	.action((options) => {
+		inquirer
+			.prompt([
+				{
+					type: 'input',
+					name: 'name',
+					message: 'Page name:',
+				},
+				{
+					type: 'confirm',
+					name: 'scss',
+					message: 'Create scss file?',
+					default: false,
+				},
+				{
+					type: 'confirm',
+					name: 'js',
+					message: 'Create js file?',
+					default: false,
+				},
+			])
+			.then(({ name, scss, js }) => {
+				const pugPath = path.join(APP_PAGES_DIR, `${name}.pug`)
+				const scssPath = path.join(APP_PAGES_STYLES_DIR, `${name}.scss`)
+				const jsPath = path.join(APP_PAGES_SCRIPTS_DIR, `${name}.js`)
+
+				if (
+					!options.f &&
+					(fs.existsSync(pugPath) ||
+						fs.existsSync(scssPath) ||
+						fs.existsSync(jsPath))
+				) {
+					return error('File already exitst. Use -f for force creating')
+				}
+
+				const titleContent = `title ${capitalize(name)} | Project name\n`
+				const styleContent = scss ? `+style('${name}.css')\n` : ''
+				const scriptContent = js
+					? `block script\n\t+script('${name}.js')\n`
+					: ''
+
+				loadTemplate(ARTISAN_TEMPLATE_PUG_PAGE)
+					.replace('@-title', titleContent)
+					.replace('@-style', styleContent)
+					.replace('@-script', scriptContent)
+					.write(pugPath)
+
+				if (scss) loadTemplate(ARTISAN_TEMPLATE_SCSS_PAGE).write(scssPath)
+				if (js) loadTemplate(ARTISAN_TEMPLATE_JS_PAGE).write(jsPath)
+
+				log(`Page '${name}.pug' success added`)
+			})
+			.catch((error) => {
+				error(`something went wrong`, error)
+			})
+	})
+
+program
+	.command('create:component')
+	.description('create new component')
+	.option('-f', 'force creating')
+	.action((options) => {
+		inquirer
+			.prompt([
+				{
+					type: 'input',
+					name: 'name',
+					message: 'Component name:',
+				},
+				{
+					type: 'list',
+					name: 'type',
+					message: 'Select component type',
+					choices: ['blocks', 'sections'],
+				},
+				{
+					type: 'confirm',
+					name: 'pug',
+					message: 'Create pug file?',
+					default: false,
+				},
+				{
+					type: 'confirm',
+					name: 'scss',
+					message: 'Create scss file?',
+					default: false,
+				},
+				{
+					type: 'confirm',
+					name: 'js',
+					message: 'Create js file?',
+					default: false,
+				},
+			])
+			.then(({ name, type, pug, scss, js }) => {
+				const typePath = path.join(APP_COMPONENTS_DIR, `common.${type}`)
+
+				if (!fs.existsSync(typePath)) {
+					fs.mkdirSync(typePath)
+					log('created new component directory: ' + `common.${type}`)
+				}
+
+				const componentPath = path.join(typePath, name)
+
+				if (!options.f && fs.existsSync(componentPath)) {
+					return error('Components already exitst. Use -f for force creating')
+				}
+
+				if (!fs.existsSync(componentPath)) {
+					fs.mkdirSync(componentPath)
+				}
+
+				if (pug) {
+					loadTemplate(ARTISAN_TEMPLATE_PUG_COMPONENT)
+						.replace('@-mixin', `mixin ${name}\n\t.${name}\n`)
+						.write(path.join(componentPath, `${name}.pug`))
+				}
+
+				if (scss) {
+					loadTemplate(ARTISAN_TEMPLATE_SCSS_COMPONENT)
+						.replace('@-class', `.${name} {\n\t\n}\n`)
+						.write(path.join(componentPath, `${name}.scss`))
+				}
+
+				if (js) {
+					loadTemplate(ARTISAN_TEMPLATE_JS_COMPONENT).write(
+						path.join(componentPath, `${name}.js`)
+					)
+				}
+
+				log(`Component '${name}' success added`)
+			})
+			.catch((error) => {
+				error(`something went wrong`, error)
+			})
+	})
+
+program.parse()
