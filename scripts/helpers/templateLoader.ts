@@ -14,7 +14,7 @@ function loadTemplate(name: string) {
 
 	const actions = {
 		replace: (regex: string, content: string) => {
-			if (exists) template = template.replace(`\/\/ ${regex}\n`, `${content}`)
+			if (exists) template = template.replace(regex, `${content}`)
 			if (!exists)
 				error(`Replacement for non-existent template '${name}' is not possible`)
 			return actions

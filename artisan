@@ -25,7 +25,7 @@ const {
 	ARTISAN_COMPONENT_AUTOIMPORT,
 } = process.env
 
-program.name('artisan').option('-f, --force', 'force command')
+program.name('artisan')
 
 const createPageQuestions = [
 	{ type: 'input', name: 'name', message: 'Page name:' },
@@ -75,14 +75,14 @@ program
 				const titleContent = `title ${capitalize(name)} | Project name\n`
 				const styleContent = scss ? `+style('${name}.css')\n` : ''
 				const scriptContent = js
-					? `block script\n\t+script('${name}.js')\n`
+					? `\nblock script\n\t+script('${name}.js')\n`
 					: ''
 
 				templateLoader()
 					.load(ARTISAN_TEMPLATE_PUG_PAGE)
-					.replace('@-title', titleContent)
-					.replace('@-style', styleContent)
-					.replace('@-script', scriptContent)
+					.replace(`// @-title\n`, titleContent)
+					.replace(`// @-style\n`, styleContent)
+					.replace(`// @-script\n`, scriptContent)
 					.write(pugPath)
 
 				if (scss)
@@ -114,54 +114,51 @@ program
 
 		inquirer
 			.prompt(createComponentQuestions)
-			.then(({ name, category, pug, scss, js, namespace }) => {
-				const typePath = path.join(APP_COMPONENTS_DIR, category)
-				const componentPath = path.join(typePath, name)
+			.then(({ name, pug, scss, js, category, namespace }) => {
+				const componentsDirPath = APP_COMPONENTS_DIR
+				const categoryDirPath = path.join(componentsDirPath, category)
+				const targetDirPath = path.join(categoryDirPath, name)
+				const targetPath = path.join(targetDirPath, name)
+				const types = []
 
-				if (!options.f && fs.existsSync(componentPath)) {
+				if (!options.f && fs.existsSync(targetDirPath)) {
 					return error('Component already exitst. Use -f for force creating')
 				}
 
-				mkdir(APP_COMPONENTS_DIR)
-				mkdir(typePath)
-				mkdir(componentPath)
+				mkdir(componentsDirPath)
+				mkdir(categoryDirPath)
+				mkdir(targetDirPath)
 
 				if (pug) {
+					types.push('pug')
 					templateLoader()
 						.load(ARTISAN_TEMPLATE_PUG_COMPONENT)
-						.replace('@-mixin', `mixin ${name}\n\t.${name}\n`)
-						.write(path.join(componentPath, `${name}.pug`))
-
-					componentInjector('pug')
-						.setNamespace(namespace)
-						.setPath(path.join(componentPath, name))
-						.write()
+						.replace(/\${name}/g, name)
+						.write(`${targetPath}.pug`)
 				}
 
 				if (scss) {
+					types.push('scss')
 					templateLoader()
 						.load(ARTISAN_TEMPLATE_SCSS_COMPONENT)
-						.replace('@-class', `.${name} {\n\t\n}\n`)
-						.write(path.join(componentPath, `${name}.scss`))
-
-					componentInjector('scss')
-						.setNamespace(namespace)
-						.setPath(path.join(componentPath, name))
-						.write()
+						.replace(/\${name}/g, name)
+						.write(`${targetPath}.scss`)
 				}
 
 				if (js) {
+					types.push('js')
 					templateLoader()
 						.load(ARTISAN_TEMPLATE_JS_COMPONENT)
-						.write(path.join(componentPath, `${name}.js`))
-
-					componentInjector('js')
-						.setNamespace(namespace)
-						.setPath(path.join(componentPath, name))
-						.write()
+						.write(`${targetPath}.js`)
 				}
 
-				log(`Component '${name}' success added`)
+				componentInjector()
+					.setNamespace(namespace.replace('.pug', ''))
+					.setPath(targetDirPath)
+					.setTypes(types)
+					.inject()
+
+				log(`Component success added`)
 			})
 			.catch((err) => {
 				console.error(err)
