@@ -8,7 +8,7 @@ const { mkdir } = require('./scripts/helpers/mkdir')
 const { log, error } = require('./scripts/helpers/logger')
 const { capitalize } = require('./scripts/helpers/textTransformUtils')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
-const { componentInjector } = require('./scripts/helpers/componentInjector')
+const { injectComponent } = require('./scripts/helpers/injectComponent')
 
 const {
 	APP_PAGES_DIR,
@@ -119,7 +119,6 @@ program
 				const categoryDirPath = path.join(componentsDirPath, category)
 				const targetDirPath = path.join(categoryDirPath, name)
 				const targetPath = path.join(targetDirPath, name)
-				const types = []
 
 				if (!options.f && fs.existsSync(targetDirPath)) {
 					return error('Component already exitst. Use -f for force creating')
@@ -130,7 +129,6 @@ program
 				mkdir(targetDirPath)
 
 				if (pug) {
-					types.push('pug')
 					templateLoader()
 						.load(ARTISAN_TEMPLATE_PUG_COMPONENT)
 						.replace(/\${name}/g, name)
@@ -138,7 +136,6 @@ program
 				}
 
 				if (scss) {
-					types.push('scss')
 					templateLoader()
 						.load(ARTISAN_TEMPLATE_SCSS_COMPONENT)
 						.replace(/\${name}/g, name)
@@ -146,19 +143,25 @@ program
 				}
 
 				if (js) {
-					types.push('js')
 					templateLoader()
 						.load(ARTISAN_TEMPLATE_JS_COMPONENT)
 						.write(`${targetPath}.js`)
 				}
 
-				componentInjector()
-					.setNamespace(namespace.replace('.pug', ''))
-					.setPath(targetDirPath)
-					.setTypes(types)
-					.inject()
+				fs.writeFileSync(
+					`${targetPath}.json`,
+					JSON.stringify(
+						{
+							namespace: namespace.replace('.pug', ''),
+						},
+						null,
+						2
+					)
+				)
 
 				log(`Component success added`)
+
+				injectComponent({ category, name })
 			})
 			.catch((err) => {
 				console.error(err)

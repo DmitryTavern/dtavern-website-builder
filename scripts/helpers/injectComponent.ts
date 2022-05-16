@@ -2,20 +2,22 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { error, log } from './logger'
 
-type Extentions = 'pug' | 'scss' | 'js'
-type Namespaces = 'global' | 'none' | string
-type Types = Array<Extentions>
+interface ComponentInjectOptions {
+	category: string
+	name: string
+}
 
 interface Options {
 	type: string
-	path: string
 	namespace: string
+	componentFileRoute: string
 }
 
 const {
 	APP_PAGES_DIR,
 	APP_PAGES_STYLES_DIR,
 	APP_PAGES_SCRIPTS_DIR,
+	APP_COMPONENTS_DIR,
 	ARTISAN_COMPONENT_AUTOIMPORT,
 	ARTISAN_COMPONENT_AUTOIMPORT_PUG_PATH,
 	ARTISAN_COMPONENT_AUTOIMPORT_SCSS_PATH,
@@ -43,8 +45,7 @@ const extentionContentFns = {
 function injectInGlobal(options: Options) {
 	const contentFn = extentionContentFns[options.type]
 	const globalFileRoute = extentionGlobalRoutes[options.type]
-	const componentFileRoute = options.path
-	const includePath = path.relative(globalFileRoute, componentFileRoute)
+	const includePath = path.relative(globalFileRoute, options.componentFileRoute)
 
 	let data = ''
 
@@ -59,13 +60,12 @@ function injectInGlobal(options: Options) {
 
 function injectInPage(options: Options) {
 	const contentFn = extentionContentFns[options.type]
-	const componentFileRoute = options.path
 	const pageFileRoute = path.join(
 		extentionPageRoutes[options.type],
 		`${options.namespace}.${options.type}`
 	)
 
-	const includePath = path.relative(pageFileRoute, componentFileRoute)
+	const includePath = path.relative(pageFileRoute, options.componentFileRoute)
 
 	if (!fs.existsSync(pageFileRoute)) {
 		console.log('Warn')
@@ -88,50 +88,55 @@ function injectInPage(options: Options) {
 	fs.writeFileSync(pageFileRoute, data)
 }
 
-export function componentInjector() {
-	let filePath: string | undefined
-	let namespace: Namespaces | undefined
-	let types: Types = []
+export function injectComponent(options: ComponentInjectOptions) {
+	if (!ARTISAN_COMPONENT_AUTOIMPORT) return
 
-	const actions = {
-		setNamespace: (_namespace: Namespaces) => {
-			namespace = _namespace
-			return actions
-		},
-		setTypes: (_types: Types) => {
-			types = _types
-			return actions
-		},
-		setPath: (_path: string) => {
-			filePath = _path
-			return actions
-		},
-		inject: () => {
-			if (!ARTISAN_COMPONENT_AUTOIMPORT) return
-			if (!namespace) return error('injector namespace is undefined')
-			if (!filePath) return error('injector path is undefined')
+	const componentDir = path.join(
+		APP_COMPONENTS_DIR,
+		options.category,
+		options.name
+	)
 
-			for (const type of types) {
-				const opts: Options = {
-					path: filePath,
-					namespace,
-					type,
-				}
+	const componentConfigFilePath = path.join(
+		componentDir,
+		`${options.name}.json`
+	)
 
-				if (namespace === 'global') {
-					injectInGlobal(opts)
-					continue
-				}
+	if (!fs.existsSync(componentConfigFilePath))
+		return error(`component '${options.name}' have not config.json`)
 
-				if (namespace !== 'none') {
-					injectInPage(opts)
-					continue
-				}
-			}
+	const config = JSON.parse(
+		fs.readFileSync(componentConfigFilePath, {
+			encoding: 'utf-8',
+		})
+	)
 
-			log('Component success injected')
-		},
+	if (!config.namespace) return error('injector namespace is undefined')
+
+	for (const type of ['pug', 'scss', 'js']) {
+		const componentFileRoute = path.join(
+			componentDir,
+			`${options.name}.${type}`
+		)
+
+		if (!fs.existsSync(componentFileRoute)) continue
+
+		const opts: Options = {
+			namespace: config.namespace,
+			componentFileRoute,
+			type,
+		}
+
+		if (config.namespace === 'global') {
+			injectInGlobal(opts)
+			continue
+		}
+
+		if (config.namespace !== 'none') {
+			injectInPage(opts)
+			continue
+		}
 	}
 
-	return actions
+	log('Component success injected')
 }
