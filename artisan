@@ -20,6 +20,7 @@ const {
 	ARTISAN_TEMPLATE_PUG_COMPONENT,
 	ARTISAN_TEMPLATE_SCSS_COMPONENT,
 	ARTISAN_TEMPLATE_JS_COMPONENT,
+	ARTISAN_COMPONENT_CATEGORIES,
 } = process.env
 
 program.name('artisan').option('-f, --force', 'force command')
@@ -37,9 +38,9 @@ const createComponentQuestions = [
 	{ type: 'confirm', name: 'js', message: 'Create js file?' },
 	{
 		type: 'list',
-		name: 'type',
-		message: 'Select component type:',
-		choices: ['blocks', 'sections'],
+		name: 'category',
+		message: 'Select component category:',
+		choices: ARTISAN_COMPONENT_CATEGORIES.split(','),
 	},
 ]
 
@@ -98,8 +99,8 @@ program
 	.action((options) => {
 		inquirer
 			.prompt(createComponentQuestions)
-			.then(({ name, type, pug, scss, js }) => {
-				const typePath = path.join(APP_COMPONENTS_DIR, `common.${type}`)
+			.then(({ name, category, pug, scss, js }) => {
+				const typePath = path.join(APP_COMPONENTS_DIR, category)
 				const componentPath = path.join(typePath, name)
 
 				if (!options.f && fs.existsSync(componentPath)) {
