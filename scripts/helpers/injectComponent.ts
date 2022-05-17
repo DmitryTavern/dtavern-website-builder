@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { error, log } from './logger'
+import { error, log, warn } from './logger'
 
 interface ComponentInjectOptions {
 	category: string
@@ -47,11 +47,14 @@ function injectInGlobal(options: Options) {
 	const globalFileRoute = extentionGlobalRoutes[options.type]
 	const includePath = path.relative(globalFileRoute, options.componentFileRoute)
 
-	let data = ''
-
-	if (fs.existsSync(globalFileRoute)) {
-		data = fs.readFileSync(globalFileRoute, { encoding: 'utf-8' })
+	if (!fs.existsSync(globalFileRoute)) {
+		warn(
+			`Injecting for component ${options.componentFileRoute} in global failed.`
+		)
+		return
 	}
+
+	let data = fs.readFileSync(globalFileRoute, { encoding: 'utf-8' })
 
 	data += contentFn(includePath)
 
@@ -68,7 +71,9 @@ function injectInPage(options: Options) {
 	const includePath = path.relative(pageFileRoute, options.componentFileRoute)
 
 	if (!fs.existsSync(pageFileRoute)) {
-		console.log('Warn')
+		warn(
+			`Injecting for component ${options.componentFileRoute} in ${options.namespace}.${options.type} failed.`
+		)
 		return
 	}
 
