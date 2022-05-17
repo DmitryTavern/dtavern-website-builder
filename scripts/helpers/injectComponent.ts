@@ -7,6 +7,10 @@ interface ComponentInjectOptions {
 	name: string
 }
 
+interface ComponentConfig {
+	namespace: string
+}
+
 interface Options {
 	type: string
 	namespace: string
@@ -40,6 +44,39 @@ const extentionContentFns = {
 	pug: (path: string) => `include ${path}\n`,
 	scss: (path: string) => `@import '${path}';\n`,
 	js: (path: string) => `require('${path}')\n`,
+}
+
+function getComponentDir(options: ComponentInjectOptions): string | undefined {
+	const dir = path.join(APP_COMPONENTS_DIR, options.category, options.name)
+
+	if (!fs.existsSync(dir)) {
+		error(`component '${options.name}' not found`)
+		return undefined
+	}
+
+	return dir
+}
+
+function getComponentConfig(
+	options: ComponentInjectOptions
+): ComponentConfig | undefined {
+	const configPath = path.join(
+		APP_COMPONENTS_DIR,
+		options.category,
+		options.name,
+		`${options.name}.json`
+	)
+
+	if (!fs.existsSync(configPath)) {
+		error(`component '${options.name}' have not config.json`)
+		return undefined
+	}
+
+	return JSON.parse(
+		fs.readFileSync(configPath, {
+			encoding: 'utf-8',
+		})
+	)
 }
 
 function injectInGlobal(options: Options) {
@@ -96,25 +133,10 @@ function injectInPage(options: Options) {
 export function injectComponent(options: ComponentInjectOptions) {
 	if (!ARTISAN_COMPONENT_AUTOIMPORT) return
 
-	const componentDir = path.join(
-		APP_COMPONENTS_DIR,
-		options.category,
-		options.name
-	)
+	const componentDir = getComponentDir(options)
+	const config = getComponentConfig(options)
 
-	const componentConfigFilePath = path.join(
-		componentDir,
-		`${options.name}.json`
-	)
-
-	if (!fs.existsSync(componentConfigFilePath))
-		return error(`component '${options.name}' have not config.json`)
-
-	const config = JSON.parse(
-		fs.readFileSync(componentConfigFilePath, {
-			encoding: 'utf-8',
-		})
-	)
+	if (!(componentDir && config)) return
 
 	if (!config.namespace) return error('injector namespace is undefined')
 
