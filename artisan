@@ -17,6 +17,7 @@ const {
 } = require('./scripts/component-utils')
 
 const {
+	APP_PROJECT_NAME,
 	APP_PAGES_DIR,
 	APP_PAGES_STYLES_DIR,
 	APP_PAGES_SCRIPTS_DIR,
@@ -78,7 +79,7 @@ program
 					return error('Js file already exitst. Use -f for force creating')
 				}
 
-				const titleContent = `title ${capitalize(name)} | Project name\n`
+				const titleContent = `title ${capitalize(name)} | ${APP_PROJECT_NAME}\n`
 				const styleContent = scss ? `+style('${name}.css')\n` : ''
 				const scriptContent = js
 					? `\nblock script\n\t+script('${name}.js')\n`
