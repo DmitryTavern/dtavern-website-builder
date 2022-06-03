@@ -5,6 +5,7 @@ const path = require('path')
 const inquirer = require('inquirer')
 const { program } = require('commander')
 const { mkdir } = require('./scripts/helpers/mkdir')
+const { rmdir } = require('./scripts/helpers/rmdir')
 const { log, error } = require('./scripts/helpers/logger')
 const { capitalize } = require('./scripts/helpers/textTransformUtils')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
@@ -183,10 +184,7 @@ program
 				},
 			])
 			.then(({ component }) => {
-				fs.rmSync(path.join(APP_COMPONENTS_DIR, component), {
-					force: true,
-					recursive: true,
-				})
+				rmdir(path.join(APP_COMPONENTS_DIR, component))
 
 				unregisterComponent(...component.split('/'))
 
