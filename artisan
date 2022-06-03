@@ -8,7 +8,11 @@ const { mkdir } = require('./scripts/helpers/mkdir')
 const { log, error } = require('./scripts/helpers/logger')
 const { capitalize } = require('./scripts/helpers/textTransformUtils')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
-const { injectComponent } = require('./scripts/helpers/injectComponent')
+const {
+	convertConfig,
+	registerComponent,
+	unregisterComponent,
+} = require('./scripts/component-utils')
 
 const {
 	APP_PAGES_DIR,
@@ -116,6 +120,7 @@ program
 			.prompt(createComponentQuestions)
 			.then(({ name, pug, scss, js, category, namespace }) => {
 				const componentsDirPath = APP_COMPONENTS_DIR
+				const targeteNamespace = namespace.replace('.pug', '')
 				const categoryDirPath = path.join(componentsDirPath, category)
 				const targetDirPath = path.join(categoryDirPath, name)
 				const targetPath = path.join(targetDirPath, name)
@@ -148,23 +153,43 @@ program
 						.write(`${targetPath}.js`)
 				}
 
-				fs.writeFileSync(
-					`${targetPath}.json`,
-					JSON.stringify(
-						{
-							namespace: namespace.replace('.pug', ''),
-						},
-						null,
-						2
-					)
-				)
+				registerComponent(targeteNamespace, category, name)
+				reinjectComponents(targeteNamespace)
 
 				log(`Component success added`)
-
-				injectComponent({ category, name })
 			})
 			.catch((err) => {
 				console.error(err)
+			})
+	})
+
+program
+	.command('reinject:components')
+	.description('reinject all components')
+	.action(() => reinjectComponents('all'))
+
+program
+	.command('remove:component')
+	.description('remove component')
+	.action(() => {
+		inquirer
+			.prompt([
+				{
+					type: 'list',
+					name: 'component',
+					message: 'Select component:',
+					choices: convertConfig({ withoutNone: false }),
+				},
+			])
+			.then(({ component }) => {
+				fs.rmSync(path.join(APP_COMPONENTS_DIR, component), {
+					force: true,
+					recursive: true,
+				})
+
+				unregisterComponent(...component.split('/'))
+
+				reinjectComponents('all')
 			})
 	})
 
