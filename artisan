@@ -9,6 +9,7 @@ const { rmdir } = require('./scripts/helpers/rmdir')
 const { log, error } = require('./scripts/helpers/logger')
 const { capitalize } = require('./scripts/helpers/textTransformUtils')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
+const { includePageStyle, includePageScript } = require('./scripts/pages-utils')
 const {
 	readConfig,
 	registerComponent,
@@ -23,8 +24,6 @@ const {
 	APP_PAGES_SCRIPTS_DIR,
 	APP_COMPONENTS_DIR,
 	ARTISAN_TEMPLATE_PUG_PAGE,
-	ARTISAN_TEMPLATE_SCSS_PAGE,
-	ARTISAN_TEMPLATE_JS_PAGE,
 	ARTISAN_TEMPLATE_PUG_COMPONENT,
 	ARTISAN_TEMPLATE_SCSS_COMPONENT,
 	ARTISAN_TEMPLATE_JS_COMPONENT,
@@ -80,21 +79,14 @@ program
 				}
 
 				const titleContent = `title ${capitalize(name)} | ${APP_PROJECT_NAME}\n`
-				const styleContent = scss ? `+style('${name}.css')\n` : ''
-				const scriptContent = js
-					? `\nblock script\n\t+script('${name}.js')\n`
-					: ''
 
 				templateLoader()
 					.load(ARTISAN_TEMPLATE_PUG_PAGE)
 					.replace(`// @-title\n`, titleContent)
-					.replace(`// @-style\n`, styleContent)
-					.replace(`// @-script\n`, scriptContent)
 					.write(pugPath)
 
-				if (scss)
-					templateLoader().load(ARTISAN_TEMPLATE_SCSS_PAGE).write(scssPath)
-				if (js) templateLoader().load(ARTISAN_TEMPLATE_JS_PAGE).write(jsPath)
+				if (scss) includePageStyle(name)
+				if (js) includePageScript(name)
 
 				log(`Page '${name}.pug' success added`)
 			})

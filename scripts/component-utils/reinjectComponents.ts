@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { log } from '../helpers/logger'
 import { readConfig, ComponentsConfig } from './componentsConfig'
+import { includePageScript, includePageStyle } from '../pages-utils'
 
 type Namespace = 'all' | 'global' | 'none' | string
 
@@ -27,6 +28,51 @@ const extentionInjectFns = {
 	pug: (path: string) => `include ${path}\n`,
 	scss: (path: string) => `@import '${path}';\n`,
 	js: (path: string) => `require\('${path}')\n`,
+}
+
+const checkNamespaceFiles = (namespace: string) => {
+	const components = config[namespace] || []
+	const exts = ['scss', 'js']
+	const extsChecked = {}
+	let scssPath = ''
+	let jsPath = ''
+
+	for (const ext of exts) {
+		for (const component of components) {
+			const [category, name] = component.split('/')
+			const componentPath = path.join(
+				APP_COMPONENTS_DIR,
+				category,
+				name,
+				`${name}.${ext}`
+			)
+
+			if (fs.existsSync(componentPath)) {
+				extsChecked[ext] = true
+				break
+			}
+		}
+	}
+
+	if (namespace === 'global') {
+		scssPath = ARTISAN_COMPONENT_AUTOIMPORT_SCSS_PATH
+		jsPath = ARTISAN_COMPONENT_AUTOIMPORT_JS_PATH
+	}
+
+	if (namespace !== 'global' && namespace !== 'none') {
+		scssPath = path.join(APP_PAGES_STYLES_DIR, `${namespace}.scss`)
+		jsPath = path.join(APP_PAGES_SCRIPTS_DIR, `${namespace}.js`)
+	}
+
+	if (!fs.existsSync(scssPath) && extsChecked.hasOwnProperty('scss')) {
+		log(`For '${namespace}' page was created style file`)
+		includePageStyle(namespace)
+	}
+
+	if (!fs.existsSync(jsPath) && extsChecked.hasOwnProperty('js')) {
+		log(`For '${namespace}' page was created script file`)
+		includePageScript(namespace)
+	}
 }
 
 const loadNamespaceFiles = (namespace: string): string[] => {
@@ -97,6 +143,11 @@ const reinjectComponentsInFile = (namespace: string, file: string) => {
 
 export function reinjectComponents(namespace: Namespace) {
 	config = readConfig().toDefault()
+
+	for (const key in config) {
+		checkNamespaceFiles(key)
+	}
+
 	const namespaces = loadNamespaces()
 
 	for (const key in namespaces) {
