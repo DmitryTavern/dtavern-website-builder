@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { log } from '../helpers/logger'
-import { readConfig } from './componentsConfig'
+import { readConfig, ComponentsConfig } from './componentsConfig'
 
 type Namespace = 'all' | 'global' | 'none' | string
 
@@ -15,7 +15,7 @@ const {
 	ARTISAN_COMPONENT_AUTOIMPORT_JS_PATH,
 } = process.env
 
-let config: ReturnType<typeof readConfig> | undefined
+let config: ComponentsConfig | undefined
 
 const extentionReplaceFns = {
 	pug: () => `include .*\/components\/.*\n`,
@@ -96,7 +96,7 @@ const reinjectComponentsInFile = (namespace: string, file: string) => {
 }
 
 export function reinjectComponents(namespace: Namespace) {
-	config = readConfig()
+	config = readConfig().toDefault()
 	const namespaces = loadNamespaces()
 
 	for (const key in namespaces) {

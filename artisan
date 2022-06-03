@@ -9,8 +9,9 @@ const { log, error } = require('./scripts/helpers/logger')
 const { capitalize } = require('./scripts/helpers/textTransformUtils')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
 const {
-	convertConfig,
+	readConfig,
 	registerComponent,
+	reinjectComponents,
 	unregisterComponent,
 } = require('./scripts/component-utils')
 
@@ -178,7 +179,7 @@ program
 					type: 'list',
 					name: 'component',
 					message: 'Select component:',
-					choices: convertConfig({ withoutNone: false }),
+					choices: readConfig({ withoutNone: false }).toOneArray(),
 				},
 			])
 			.then(({ component }) => {

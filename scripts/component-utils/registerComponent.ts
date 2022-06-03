@@ -5,7 +5,7 @@ export function registerComponent(
 	category: string,
 	component: string
 ) {
-	const config = readConfig()
+	const config = readConfig({ ignoreIntegrity: true }).toDefault()
 
 	const comopnents = config[namespace] ? config[namespace] : []
 

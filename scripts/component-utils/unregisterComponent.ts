@@ -1,7 +1,7 @@
 import { readConfig, writeConfig } from './componentsConfig'
 
 export function unregisterComponent(category: string, component: string) {
-	const config = readConfig()
+	const config = readConfig().toDefault()
 
 	for (const key in config) {
 		const comopnents = config[key]

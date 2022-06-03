@@ -1,45 +1,101 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { log } from '../helpers/logger'
 import { mkdir } from '../helpers/mkdir'
+import { registerComponent } from './registerComponent'
 
-interface ComponentsConfig {
+export interface ComponentsConfig {
 	[key: string]: string[]
 }
 
-const { APP_COMPONENTS_DIR, APP_COMPONENTS_CONFIG_FILENAME } = process.env
+interface ReadOptionsFn {
+	ignore?: string | string[] | undefined
+	ignoreIntegrity?: boolean
+}
 
-export function readConfig(): ComponentsConfig {
-	const configPath = path.join(
-		APP_COMPONENTS_DIR,
-		APP_COMPONENTS_CONFIG_FILENAME
-	)
+interface ReadReturnFn {
+	toDefault: () => ComponentsConfig
+	toOneArray: () => string[]
+}
 
-	if (!fs.existsSync(configPath)) {
-		mkdir(APP_COMPONENTS_DIR)
-		fs.writeFileSync(configPath, '{}')
-	}
+const configPath = path.join(
+	process.env.APP_COMPONENTS_DIR,
+	process.env.APP_COMPONENTS_CONFIG_FILENAME
+)
 
+function loadConfig(): ComponentsConfig {
 	return JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' }))
 }
 
-export function convertConfig(options: { withoutNone?: boolean } = {}): string[] {
-	const config = readConfig()
-	const components = []
+function checkConfigExists() {
+	if (!fs.existsSync(configPath)) {
+		mkdir(process.env.APP_COMPONENTS_DIR)
+		fs.writeFileSync(configPath, '{}')
+	}
+}
 
-	for (const key in config) {
-		if (options.withoutNone && key === 'none') continue
+function checkConfigIntegrity() {
+	const COMPONENTS_DIR = process.env.APP_COMPONENTS_DIR
+	const configComponents = loadConfig()
+	let components: string[] = []
 
-		components.push(...config[key])
+	fs.readdirSync(COMPONENTS_DIR)
+		.filter((file) =>
+			fs.lstatSync(path.join(COMPONENTS_DIR, file)).isDirectory()
+		)
+		.map((category: string) =>
+			fs
+				.readdirSync(path.join(COMPONENTS_DIR, category))
+				.filter((file) =>
+					fs.lstatSync(path.join(COMPONENTS_DIR, category, file)).isDirectory()
+				)
+				.map((component) => {
+					components.push(`${category}/${component}`)
+				})
+		)
+
+	for (const key in configComponents) {
+		components = components.filter(
+			(component) => configComponents[key].indexOf(component) < 0
+		)
 	}
 
-	return components
+	if (components.length === 0) return
+
+	for (const component of components) {
+		const [category, name] = component.split('/')
+		registerComponent('none', category, name)
+	}
+
+	log(
+		`Components Config Integrity: found components without namesapce. They are added to 'none' namespace`
+	)
+}
+
+export function readConfig(options: ReadOptionsFn = {}): ReadReturnFn {
+	checkConfigExists()
+	if (!options.ignoreIntegrity) checkConfigIntegrity()
+
+	const data = loadConfig()
+
+	return {
+		toDefault: () => data,
+		toOneArray: () => {
+			const components = []
+			let ignore = Array.isArray(options.ignore)
+				? options.ignore
+				: [options.ignore]
+
+			for (const key in data) {
+				if (ignore.includes(key)) continue
+				components.push(...data[key])
+			}
+
+			return components
+		},
+	}
 }
 
 export function writeConfig(data: ComponentsConfig): void {
-	const configPath = path.join(
-		APP_COMPONENTS_DIR,
-		APP_COMPONENTS_CONFIG_FILENAME
-	)
-
 	fs.writeFileSync(configPath, JSON.stringify(data, null, 2))
 }
