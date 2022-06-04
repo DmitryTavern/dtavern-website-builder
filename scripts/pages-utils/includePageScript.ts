@@ -1,19 +1,18 @@
 import * as fs from 'fs'
-import * as path from 'path'
+import { getNamespacePathes } from '../component-utils'
 import { templateLoader } from '../helpers/templateLoader'
 
-const { APP_PAGES_DIR, APP_PAGES_SCRIPTS_DIR, ARTISAN_TEMPLATE_JS_PAGE } =
-	process.env
+const { ARTISAN_TEMPLATE_JS_PAGE } = process.env
 const findScriptRegexp = /\+script\(.*\n/
 const findBlockRegexp = /block script\n/
 
 export function includePageScript(pageName: string) {
-	const pugPath = path.join(APP_PAGES_DIR, `${pageName}.pug`)
-	const jsPath = path.join(APP_PAGES_SCRIPTS_DIR, `${pageName}.js`)
-	let pugData = fs.readFileSync(pugPath, { encoding: 'utf-8' })
-	let replaceData = ''
+	const pathes = getNamespacePathes(pageName)
 
-	templateLoader().load(ARTISAN_TEMPLATE_JS_PAGE).write(jsPath)
+	templateLoader().load(ARTISAN_TEMPLATE_JS_PAGE).write(pathes.jsPath)
+
+	let pugData = fs.readFileSync(pathes.pugPath, { encoding: 'utf-8' })
+	let replaceData = ''
 
 	const findScriptResult = pugData.match(findScriptRegexp)
 	const findBlockResult = pugData.match(findBlockRegexp)
@@ -32,5 +31,5 @@ export function includePageScript(pageName: string) {
 		replaceData + `\t+script('${pageName}.js')\n`
 	)
 
-	fs.writeFileSync(pugPath, pugData)
+	fs.writeFileSync(pathes.pugPath, pugData)
 }

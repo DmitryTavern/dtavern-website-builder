@@ -7,23 +7,24 @@ const { program } = require('commander')
 const { mkdir } = require('./scripts/helpers/mkdir')
 const { rmdir } = require('./scripts/helpers/rmdir')
 const { log, error } = require('./scripts/helpers/logger')
-const { capitalize } = require('./scripts/helpers/textTransformUtils')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
-const { includePageStyle, includePageScript } = require('./scripts/pages-utils')
+const {
+	createPage,
+	includePageStyle,
+	includePageScript,
+} = require('./scripts/pages-utils')
+
 const {
 	readConfig,
 	registerComponent,
 	reinjectComponents,
 	unregisterComponent,
+	getNamespacePathes,
+	getNamespaceList,
 } = require('./scripts/component-utils')
 
 const {
-	APP_PROJECT_NAME,
-	APP_PAGES_DIR,
-	APP_PAGES_STYLES_DIR,
-	APP_PAGES_SCRIPTS_DIR,
 	APP_COMPONENTS_DIR,
-	ARTISAN_TEMPLATE_PUG_PAGE,
 	ARTISAN_TEMPLATE_PUG_COMPONENT,
 	ARTISAN_TEMPLATE_SCSS_COMPONENT,
 	ARTISAN_TEMPLATE_JS_COMPONENT,
@@ -52,6 +53,24 @@ const createComponentQuestions = [
 	},
 ]
 
+const removeComponentsQuestions = [
+	{
+		type: 'list',
+		name: 'component',
+		message: 'Select component:',
+		choices: readConfig({ withoutNone: false }).toOneArray(),
+	},
+]
+
+if (ARTISAN_COMPONENT_AUTOIMPORT) {
+	createComponentQuestions.push({
+		type: 'list',
+		name: 'namespace',
+		message: 'Where to connect this component?',
+		choices: getNamespaceList(),
+	})
+}
+
 const inquirerError = (error) => error(`something went wrong`, error)
 
 program
@@ -62,29 +81,21 @@ program
 		inquirer
 			.prompt(createPageQuestions)
 			.then(({ name, scss, js }) => {
-				const pugPath = path.join(APP_PAGES_DIR, `${name}.pug`)
-				const scssPath = path.join(APP_PAGES_STYLES_DIR, `${name}.scss`)
-				const jsPath = path.join(APP_PAGES_SCRIPTS_DIR, `${name}.js`)
+				const pathes = getNamespacePathes(name)
 
-				if (!options.f && fs.existsSync(pugPath)) {
+				if (!options.f && pathes.pugFileExists) {
 					return error('Pug file already exitst. Use -f for force creating')
 				}
 
-				if (!options.f && fs.existsSync(scssPath) && scss) {
+				if (!options.f && pathes.scssFileExists && scss) {
 					return error('Scss file already exitst. Use -f for force creating')
 				}
 
-				if (!options.f && fs.existsSync(jsPath) && js) {
+				if (!options.f && pathes.jsFileExists && js) {
 					return error('Js file already exitst. Use -f for force creating')
 				}
 
-				const titleContent = `title ${capitalize(name)} | ${APP_PROJECT_NAME}\n`
-
-				templateLoader()
-					.load(ARTISAN_TEMPLATE_PUG_PAGE)
-					.replace(`// @-title\n`, titleContent)
-					.write(pugPath)
-
+				createPage(name)
 				if (scss) includePageStyle(name)
 				if (js) includePageScript(name)
 
@@ -98,19 +109,6 @@ program
 	.description('create new component')
 	.option('-f', 'force creating')
 	.action((options) => {
-		if (ARTISAN_COMPONENT_AUTOIMPORT) {
-			const pages = fs
-				.readdirSync(APP_PAGES_DIR)
-				.filter((file) => path.extname(file) === '.pug')
-
-			createComponentQuestions.push({
-				type: 'list',
-				name: 'namespace',
-				message: 'Where to connect this component?',
-				choices: ['global', 'none', ...pages],
-			})
-		}
-
 		inquirer
 			.prompt(createComponentQuestions)
 			.then(({ name, pug, scss, js, category, namespace }) => {
@@ -153,9 +151,7 @@ program
 
 				log(`Component success added`)
 			})
-			.catch((err) => {
-				console.error(err)
-			})
+			.catch(inquirerError)
 	})
 
 program
@@ -168,14 +164,7 @@ program
 	.description('remove component')
 	.action(() => {
 		inquirer
-			.prompt([
-				{
-					type: 'list',
-					name: 'component',
-					message: 'Select component:',
-					choices: readConfig({ withoutNone: false }).toOneArray(),
-				},
-			])
+			.prompt(removeComponentsQuestions)
 			.then(({ component }) => {
 				rmdir(path.join(APP_COMPONENTS_DIR, component))
 
@@ -183,6 +172,7 @@ program
 
 				reinjectComponents('all')
 			})
+			.catch(inquirerError)
 	})
 
 program.parse()
