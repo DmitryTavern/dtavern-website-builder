@@ -22,6 +22,7 @@ const {
 	unregisterComponent,
 	getNamespacePathes,
 	getNamespaceList,
+	getPageList,
 } = require('./scripts/component-utils')
 
 const {
@@ -68,9 +69,7 @@ const renamePageQuestions = [
 		type: 'list',
 		name: 'name',
 		message: 'The page you want to rename',
-		choices: getNamespaceList().filter(
-			(namespace) => namespace !== 'global' && namespace !== 'none'
-		),
+		choices: getPageList(),
 	},
 	{ type: 'input', name: 'newName', message: 'New page name (without ext):' },
 ]
@@ -195,8 +194,14 @@ program
 		inquirer
 			.prompt(renamePageQuestions)
 			.then(({ name, newName }) => {
+				if (getPageList().includes(newName)) {
+					error(
+						`New name '${newName}' is already taken. Please, use other name.`
+					)
+					return
+				}
+
 				renamePage(name, newName)
-				log(`Don't forget to restart gulp!`)
 			})
 			.catch(inquirerError)
 	})

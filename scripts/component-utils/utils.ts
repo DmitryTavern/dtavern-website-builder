@@ -31,13 +31,15 @@ const defaultPathes = {
 	jsFileExists: false,
 }
 
-export function getNamespaceList(): string[] {
-	const pages = fs
+export function getPageList(): string[] {
+	return fs
 		.readdirSync(APP_PAGES_DIR)
 		.filter((file) => path.extname(file) === '.pug')
 		.map((file) => file.replace(/\..*/, ''))
+}
 
-	return ['global', ...pages, 'none']
+export function getNamespaceList(): string[] {
+	return ['global', ...getPageList(), 'none']
 }
 
 export function getNamespacePathes(namespace: string): ViewPathes {

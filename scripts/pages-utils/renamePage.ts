@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { log } from '../helpers/logger'
+import { log, warn } from '../helpers/logger'
 import { getPageTitle } from './getPageTitle'
 import { readConfig, getNamespacePathes, writeConfig } from '../component-utils'
 
@@ -22,7 +22,21 @@ function renameFile(pageName: string, newPageName: string, file: string) {
 	const fileExt = path.extname(file).replace('.', '')
 	const regexp = new RegExp(extFindFns[fileExt](pageName))
 	const pageDir = file.replace(`${pageName}.${fileExt}`, `${pageName}`)
+	const newPage = file.replace(
+		`${pageName}.${fileExt}`,
+		`${newPageName}.${fileExt}`
+	)
 	const newPageDir = file.replace(`${pageName}.${fileExt}`, `${newPageName}`)
+
+	if (fs.existsSync(newPage)) {
+		warn(`Rename function overwrite existing file: '${newPage}'`)
+	}
+
+	if (fs.existsSync(newPageDir)) {
+		warn(
+			`Rename function marge existing directory: '${newPageDir}' with '${pageDir}'`
+		)
+	}
 
 	let fileData = fs.readFileSync(file, { encoding: 'utf-8' })
 	let match = fileData.match(regexp)

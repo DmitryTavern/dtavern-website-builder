@@ -7,4 +7,5 @@ export {
 	getNamespacePathes,
 	getNamespaceComponents,
 	getComponentPathes,
+	getPageList,
 } from './utils'

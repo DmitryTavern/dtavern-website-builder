@@ -7,5 +7,5 @@ export function log(...args: any[]) {
 }
 
 export function warn(...args: any[]) {
-	console.log('\x1b[93m[log]:\x1b[0m', ...args)
+	console.log('\x1b[93m[warn]:\x1b[0m', ...args)
 }
