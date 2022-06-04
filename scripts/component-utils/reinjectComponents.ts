@@ -20,7 +20,7 @@ const extReplaceFns = {
 
 const extInjectFns = {
 	pug: (path: string) => `include ${path}\n`,
-	scss: (path: string) => `@import '${path}';\n`,
+	scss: (path: string) => `@import "${path}";\n`,
 	js: (path: string) => `require\('${path}')\n`,
 }
 
