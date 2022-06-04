@@ -80,7 +80,7 @@ const reinjectComponentsInFile = (namespace: string, file: string) => {
 	const fileExt = path.extname(file).replace('.', '')
 
 	const componentsRegexp = new RegExp(extReplaceFns[fileExt](), 'gm')
-	const autoimportRegexp = new RegExp('// @-auto-import\n')
+	const autoimportRegexp = new RegExp('//- @-auto-import\n')
 
 	let componentsString = ''
 
@@ -97,7 +97,7 @@ const reinjectComponentsInFile = (namespace: string, file: string) => {
 		}
 	}
 
-	componentsString += '// @-auto-import\n'
+	componentsString += '//- @-auto-import\n'
 
 	let fileData = fs.readFileSync(file, { encoding: 'utf-8' })
 	fileData = fileData.replace(componentsRegexp, '')

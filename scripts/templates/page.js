@@ -1,3 +1,3 @@
-// @-auto-import
+//- @-auto-import
 
 document.addEventListener('DOMContentLoaded', function () {})
