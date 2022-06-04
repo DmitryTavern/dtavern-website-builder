@@ -17,11 +17,11 @@ gulp.task(
 		gulp.parallel(
 			viewsTask,
 			styleTask,
-			scriptTask,
-			imageTask,
-			spriteTask,
-			fontsTask,
-			serverTask
+			scriptTask
+			// imageTask,
+			// spriteTask,
+			// fontsTask,
+			// serverTask
 		)
 	)
 )
