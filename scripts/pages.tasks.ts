@@ -3,7 +3,7 @@ import * as gulp from 'gulp'
 import * as pug from 'gulp-pug'
 import * as server from 'browser-sync'
 import * as rename from 'gulp-rename'
-import * as prettyHtml from 'gulp-pretty-html'
+import * as prettyHtml from 'gulp-html-prettify'
 import * as types from './types'
 
 import taskWrap from './helpers/taskWrap'
@@ -39,7 +39,7 @@ const compiler: types.Compiler = (input: string) =>
 			return gulp
 				.src(input)
 				.pipe(pug())
-				.pipe(prettyHtml())
+				.pipe(prettyHtml({ indent_char: ' ', indent_size: 2 }))
 				.pipe(rename({ dirname: '' }))
 				.pipe(gulp.dest(BUILD_DIR))
 	})
