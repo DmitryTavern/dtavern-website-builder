@@ -8,6 +8,7 @@ import * as server from 'browser-sync'
 import * as uglify from 'gulp-uglify'
 import * as rename from 'gulp-rename'
 import * as types from './types'
+import { mkdir } from './helpers/mkdir'
 
 import taskWrap from './helpers/taskWrap'
 import compilerWrap from './helpers/compilerWrap'
@@ -65,6 +66,7 @@ const rollupCompiler = async (input: string) => {
 
 			for (const chunk of output) {
 				if (chunk.type === 'chunk') {
+					mkdir(BUILD_DIR)
 					fs.writeFileSync(path.join(BUILD_DIR, chunk.fileName), chunk.code)
 				}
 			}

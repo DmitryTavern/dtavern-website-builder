@@ -132,8 +132,6 @@ program
 					return error('Component already exitst. Use -f for force creating')
 				}
 
-				mkdir(componentsDirPath)
-				mkdir(categoryDirPath)
 				mkdir(targetDirPath)
 
 				if (pug) {
