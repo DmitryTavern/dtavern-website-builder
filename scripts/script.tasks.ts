@@ -2,6 +2,7 @@ import * as path from 'path'
 import * as gulp from 'gulp'
 import * as server from 'browser-sync'
 import * as babel from 'gulp-babel'
+import * as uglify from 'gulp-uglify'
 import * as rename from 'gulp-rename'
 import * as types from './types'
 
@@ -42,7 +43,7 @@ const compiler: types.Compiler = (input: string) =>
 				.pipe(gulp.dest(BUILD_DIR))
 				.pipe(server.reload({ stream: true }))
 
-		if (NODE_ENV === 'production')
+		if (NODE_ENV === 'production') {
 			return gulp
 				.src(input)
 				.pipe(
@@ -52,6 +53,10 @@ const compiler: types.Compiler = (input: string) =>
 				)
 				.pipe(rename({ dirname: '' }))
 				.pipe(gulp.dest(BUILD_DIR))
+				.pipe(rename({ suffix: '.min' }))
+				.pipe(uglify())
+				.pipe(gulp.dest(BUILD_DIR))
+		}
 	})
 
 const vendorCompiler: types.Compiler = () =>
@@ -66,6 +71,7 @@ const vendorCompiler: types.Compiler = () =>
 		if (NODE_ENV === 'production')
 			return gulp
 				.src(SCRIPTS_VENDOR_JS)
+				.pipe(uglify())
 				.pipe(rename({ dirname: '' }))
 				.pipe(gulp.dest(BUILD_VENDOR_DIR))
 	})

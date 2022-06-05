@@ -1,7 +1,13 @@
 mixin style(url='')
+	-
+		var env = process.env
+		var name = env.NODE_ENV === 'production' && env.APP_BUILD_MINIFY_STYLES == 'true'
+			? url.replace('.css', '.min.css')
+			: url
+
 	link(
-		href=process.env.APP_BUILD_STYLES_DIRNAME + '/' + url,
+		href=process.env.APP_BUILD_STYLES_DIRNAME + '/' + name,
 		rel='preload',
 		as='style'
 	)
-	link(rel='stylesheet', href=process.env.APP_BUILD_STYLES_DIRNAME + '/' + url)
+	link(rel='stylesheet', href=process.env.APP_BUILD_STYLES_DIRNAME + '/' + name)

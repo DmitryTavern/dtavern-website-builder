@@ -4,7 +4,6 @@ import * as server from 'browser-sync'
 import * as sass from 'sass'
 import * as gulpSass from 'gulp-sass'
 import * as gcmq from 'gulp-group-css-media-queries'
-import * as clean from 'gulp-clean-css'
 import * as rename from 'gulp-rename'
 import * as cssnano from 'gulp-cssnano'
 import * as autoprefixer from 'gulp-autoprefixer'
@@ -48,26 +47,14 @@ const compiler: types.Compiler = (input: string, msg: string) =>
 				.pipe(sassGulp().on('error', sassGulp.logError))
 				.pipe(
 					autoprefixer({
-						browsers: [
-							'> 0.2%',
-							'last 8 versions',
-							'not dead',
-							'not op_mini all',
-							'android >= 4',
-							'chrome >= 45',
-							'ff >= 45',
-							'safari >= 7',
-							'opera >= 23',
-							'ios >= 7',
-							'bb >= 10',
-						],
 						cascade: false,
 					})
 				)
-				.pipe(clean())
 				.pipe(gcmq())
-				.pipe(cssnano())
 				.pipe(rename({ dirname: '' }))
+				.pipe(gulp.dest(BUILD_DIR))
+				.pipe(rename({ suffix: '.min' }))
+				.pipe(cssnano())
 				.pipe(gulp.dest(BUILD_DIR))
 	})
 
