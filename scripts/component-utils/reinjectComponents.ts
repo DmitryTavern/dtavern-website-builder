@@ -15,13 +15,13 @@ type Namespace = 'all' | 'global' | 'none' | string
 const extReplaceFns = {
 	pug: () => `include .*\/components\/.*\n`,
 	scss: () => `@import .*\/components\/.*\n`,
-	js: () => `require\\(.*\/components\/.*\n`,
+	js: () => `import .*\/components\/.*\n`,
 }
 
 const extInjectFns = {
 	pug: (path: string) => `include ${path}\n`,
 	scss: (path: string) => `@import "${path}";\n`,
-	js: (path: string) => `require\('${path}')\n`,
+	js: (path: string) => `import '${path}'\n`,
 }
 
 const checkNamespaceFiles = (namespace: string) => {

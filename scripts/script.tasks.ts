@@ -1,7 +1,10 @@
+import * as fs from 'fs'
 import * as path from 'path'
 import * as gulp from 'gulp'
+import * as glob from 'glob'
+import * as rollup from 'rollup'
+import * as terser from 'rollup-plugin-terser'
 import * as server from 'browser-sync'
-import * as babel from 'gulp-babel'
 import * as uglify from 'gulp-uglify'
 import * as rename from 'gulp-rename'
 import * as types from './types'
@@ -34,28 +37,51 @@ const BUILD_VENDOR_DIR = path.join(
 	APP_BUILD_SCRIPTS_VENDOR_DIRNAME
 )
 
-const compiler: types.Compiler = (input: string) =>
-	compilerWrap('[js]: compiling all pages', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(input)
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(server.reload({ stream: true }))
+const rollupCompiler = async (input: string) => {
+	const files = glob.sync(input)
+
+	for (const file of files) {
+		const name = path.basename(file)
+
+		const outputsList: any[] = [
+			{
+				file: path.join(BUILD_DIR, name),
+				format: 'cjs',
+			},
+		]
 
 		if (NODE_ENV === 'production') {
-			return gulp
-				.src(input)
-				.pipe(
-					babel({
-						presets: ['@babel/env'],
-					})
-				)
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(rename({ suffix: '.min' }))
-				.pipe(uglify())
-				.pipe(gulp.dest(BUILD_DIR))
+			outputsList.push({
+				file: path.join(BUILD_DIR, name.replace('.js', '.min.js')),
+				plugins: [terser.terser()],
+				format: 'cjs',
+			})
+		}
+
+		const bundle = await rollup.rollup({ input: file })
+
+		for (const options of outputsList) {
+			const { output } = await bundle.generate(options)
+
+			for (const chunk of output) {
+				if (chunk.type === 'chunk') {
+					fs.writeFileSync(path.join(BUILD_DIR, chunk.fileName), chunk.code)
+				}
+			}
+		}
+	}
+}
+
+const compiler: types.Compiler = (input: string) =>
+	compilerWrap('[js]: compiling all pages', async () => {
+		if (NODE_ENV === 'development') {
+			rollupCompiler(input)
+			return gulp.src(input).pipe(server.reload({ stream: true }))
+		}
+
+		if (NODE_ENV === 'production') {
+			rollupCompiler(input)
+			return gulp.src(input)
 		}
 	})
 

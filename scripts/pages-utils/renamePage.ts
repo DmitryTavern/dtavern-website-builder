@@ -7,13 +7,13 @@ import { readConfig, getNamespacePathes, writeConfig } from '../component-utils'
 const extFindFns = {
 	pug: (pageName: string) => `include ((|..)${pageName}\/)(.*)\n`,
 	scss: (pageName: string) => `@import (("|"..|'|'..)${pageName}\/)(.*)\n`,
-	js: (pageName: string) => `require\\((("|"..|'|'..)${pageName}\/)(.*)\n`,
+	js: (pageName: string) => `import (("|"..|'|'..)${pageName}\/)(.*)\n`,
 }
 
 const extInjectFns = {
 	pug: (path: string) => `include ${path}\n`,
 	scss: (path: string) => `@import ${path}\n`,
-	js: (path: string) => `require\(${path}\n`,
+	js: (path: string) => `import ${path}\n`,
 }
 
 function renameFile(pageName: string, newPageName: string, file: string) {
