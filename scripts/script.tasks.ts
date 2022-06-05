@@ -28,7 +28,7 @@ const SCRIPTS_JS = path.join(APP_ASSETS_SCRIPTS_DIR, '/**/*.js')
 const SCRIPTS_COMMON_JS = path.join(APP_ASSETS_SCRIPTS_DIR, '/*.js')
 const SCRIPTS_VENDOR_JS = path.join(APP_ASSETS_SCRIPTS_VENDOR_DIR, '/**/*.js')
 
-const PAGES_JS = path.join(APP_PAGES_SCRIPTS_DIR, '/**/*.js')
+const PAGES_JS = path.join(APP_PAGES_SCRIPTS_DIR, '/*.js')
 const COMPONENTS_JS = path.join(APP_COMPONENTS_DIR, '/**/*.js')
 
 const BUILD_DIR = path.join(APP_BUILD_DIRNAME, APP_BUILD_SCRIPTS_DIRNAME)

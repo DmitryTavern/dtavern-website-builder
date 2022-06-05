@@ -78,6 +78,7 @@ const loadNamespacesFiles = () => {
 const reinjectComponentsInFile = (namespace: string, file: string) => {
 	const components = getNamespaceComponents(namespace)
 	const fileExt = path.extname(file).replace('.', '')
+	const fileName = path.basename(file)
 
 	const componentsRegexp = new RegExp(extReplaceFns[fileExt](), 'gm')
 	const autoimportRegexp = new RegExp('//- @-auto-import\n')
@@ -90,7 +91,7 @@ const reinjectComponentsInFile = (namespace: string, file: string) => {
 		const pathFile = pathes[`${fileExt}Path`]
 		const pathFileExists = pathes[`${fileExt}FileExists`]
 
-		const includePath = path.relative(file, pathFile)
+		const includePath = path.relative(file.replace(fileName, ''), pathFile)
 
 		if (pathFileExists) {
 			componentsString += extInjectFns[fileExt](includePath)
