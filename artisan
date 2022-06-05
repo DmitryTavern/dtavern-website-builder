@@ -6,7 +6,7 @@ const inquirer = require('inquirer')
 const { program } = require('commander')
 const { mkdir } = require('./scripts/helpers/mkdir')
 const { rmdir } = require('./scripts/helpers/rmdir')
-const { log, error } = require('./scripts/helpers/logger')
+const { log, error, warn } = require('./scripts/helpers/logger')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
 const {
 	createPage,
@@ -53,6 +53,12 @@ const createComponentQuestions = [
 		message: 'Select component category:',
 		choices: ARTISAN_COMPONENT_CATEGORIES.split(','),
 	},
+	{
+		type: 'list',
+		name: 'namespace',
+		message: 'Where to connect this component?',
+		choices: getNamespaceList(),
+	},
 ]
 
 const removeComponentsQuestions = [
@@ -74,15 +80,7 @@ const renamePageQuestions = [
 	{ type: 'input', name: 'newName', message: 'New page name (without ext):' },
 ]
 
-if (ARTISAN_COMPONENT_AUTOIMPORT) {
-	createComponentQuestions.push({
-		type: 'list',
-		name: 'namespace',
-		message: 'Where to connect this component?',
-		choices: getNamespaceList(),
-	})
-}
-
+const autoimportStatus = () => ARTISAN_COMPONENT_AUTOIMPORT == 'true'
 const inquirerError = (err) => error(`something went wrong`, err)
 
 program
@@ -159,7 +157,10 @@ program
 				}
 
 				registerComponent(targeteNamespace, category, name)
-				reinjectComponents(targeteNamespace)
+
+				if (autoimportStatus()) {
+					reinjectComponents(targeteNamespace)
+				}
 
 				log(`Component success added`)
 			})
@@ -169,7 +170,13 @@ program
 program
 	.command('reinject:components')
 	.description('reinject all components')
-	.action(() => reinjectComponents('all'))
+	.action(() => {
+		if (autoimportStatus()) {
+			reinjectComponents('all')
+		} else {
+			warn('Autoimport turn off in .env')
+		}
+	})
 
 program
 	.command('remove:component')
@@ -182,7 +189,9 @@ program
 
 				unregisterComponent(...component.split('/'))
 
-				reinjectComponents('all')
+				if (autoimportStatus()) {
+					reinjectComponents('all')
+				}
 			})
 			.catch(inquirerError)
 	})

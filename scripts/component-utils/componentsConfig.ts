@@ -24,20 +24,16 @@ const configPath = path.join(
 )
 
 function loadConfig(): ComponentsConfig {
+	if (!fs.existsSync(configPath)) return {}
 	return JSON.parse(fs.readFileSync(configPath, { encoding: 'utf-8' }))
-}
-
-function checkConfigExists() {
-	if (!fs.existsSync(configPath)) {
-		mkdir(process.env.APP_COMPONENTS_DIR)
-		fs.writeFileSync(configPath, '{}')
-	}
 }
 
 function checkConfigIntegrity() {
 	const COMPONENTS_DIR = process.env.APP_COMPONENTS_DIR
 	const configComponents = loadConfig()
 	let components: string[] = []
+
+	if (!fs.existsSync(COMPONENTS_DIR)) return
 
 	fs.readdirSync(COMPONENTS_DIR)
 		.filter((file) =>
@@ -73,7 +69,6 @@ function checkConfigIntegrity() {
 }
 
 export function readConfig(options: ReadOptionsFn = {}): ReadReturnFn {
-	checkConfigExists()
 	if (!options.ignoreIntegrity) checkConfigIntegrity()
 
 	const data = loadConfig()
@@ -97,5 +92,6 @@ export function readConfig(options: ReadOptionsFn = {}): ReadReturnFn {
 }
 
 export function writeConfig(data: ComponentsConfig): void {
+	mkdir(process.env.APP_COMPONENTS_DIR)
 	fs.writeFileSync(configPath, JSON.stringify(data, null, 2))
 }
