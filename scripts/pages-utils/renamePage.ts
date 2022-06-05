@@ -1,8 +1,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as glob from 'glob'
 import { log, warn } from '../helpers/logger'
 import { getPageTitle } from './getPageTitle'
 import { readConfig, getNamespacePathes, writeConfig } from '../component-utils'
+
+const { APP_PAGES_DIR } = process.env
 
 const extFindFns = {
 	pug: (pageName: string) => `include ((|..)${pageName}\/)(.*)\n`,
@@ -98,6 +101,17 @@ export function renamePage(pageName: string, newPageName: string) {
 	renameFile(pageName, newPageName, pathes.pugPath)
 	renameFile(pageName, newPageName, pathes.scssPath)
 	renameFile(pageName, newPageName, pathes.jsPath)
+
+	const files = glob.sync(`${path.join(APP_PAGES_DIR, '**/*.pug')}`)
+	const regexpLink = new RegExp(`href=('|")/${pageName}.html('|")`)
+
+	for (const file of files) {
+		let fileData = fs.readFileSync(file, { encoding: 'utf-8' })
+
+		fileData = fileData.replace(regexpLink, `href='/${newPageName}.html'`)
+
+		fs.writeFileSync(file, fileData)
+	}
 
 	log(`Page '${pageName}' success renamed to '${newPageName}'`)
 }
