@@ -9,6 +9,7 @@ import * as types from './types'
 import taskWrap from './helpers/taskWrap'
 import compilerWrap from './helpers/compilerWrap'
 import watchViews from './helpers/watchViews'
+import watchComponents from './helpers/watchComponents'
 import { mkdir } from './helpers/mkdir'
 
 const {
@@ -46,14 +47,11 @@ const compiler: types.Compiler = (input: string) =>
 	})
 
 export default taskWrap('[task]: run pages services', (done: any) => {
-	mkdir(APP_COMPONENTS_DIR)
-
 	if (NODE_ENV === 'production') return compiler(PAGES_PUG)(done)
 
 	watchViews(APP_PAGES_DIR, compiler)
 
-	gulp.watch(
-		[VIEWS_PUG, COMPONENTS_PUG, `!${PAGES_ALL_PUG}`],
-		compiler(PAGES_PUG)
-	)
+	watchComponents(COMPONENTS_PUG, compiler(PAGES_PUG))
+
+	gulp.watch([VIEWS_PUG, `!${PAGES_ALL_PUG}`], compiler(PAGES_PUG))
 })

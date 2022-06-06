@@ -12,6 +12,7 @@ import * as types from './types'
 import taskWrap from './helpers/taskWrap'
 import compilerWrap from './helpers/compilerWrap'
 import watchViews from './helpers/watchViews'
+import watchComponents from './helpers/watchComponents'
 import { mkdir } from './helpers/mkdir'
 
 const {
@@ -60,18 +61,17 @@ const compiler: types.Compiler = (input: string, msg: string) =>
 	})
 
 export default taskWrap('[task]: run styles services', (done: any) => {
-	mkdir(APP_COMPONENTS_DIR)
-
 	if (NODE_ENV === 'production') {
 		gulp.series(compiler(STYLES_COMMON_SASS), compiler(PAGES_SASS))(done)
 		return
 	}
 
 	watchViews(APP_PAGES_STYLES_DIR, compiler)
+
 	compiler(STYLES_COMMON_SASS, '[sass]: compiling common file')(null)
 
-	gulp.watch(
-		[COMPONENTS_SASS],
+	watchComponents(
+		COMPONENTS_SASS,
 		gulp.series(
 			compiler(STYLES_COMMON_SASS, '[sass]: compiling common file'),
 			compiler(PAGES_SASS)

@@ -12,6 +12,7 @@ import * as types from './types'
 import taskWrap from './helpers/taskWrap'
 import compilerWrap from './helpers/compilerWrap'
 import watchViews from './helpers/watchViews'
+import watchComponents from './helpers/watchComponents'
 import { mkdir } from './helpers/mkdir'
 
 const {
@@ -74,8 +75,8 @@ const rollupCompiler = async (input: string) => {
 	}
 }
 
-const compiler: types.Compiler = (input: string) =>
-	compilerWrap('[js]: compiling all pages', async () => {
+const compiler: types.Compiler = (input: string, msg: string) =>
+	compilerWrap(msg ? msg : '[sass]: compiling all pages', async () => {
 		if (NODE_ENV === 'development') {
 			rollupCompiler(input)
 			return gulp.src(input).pipe(server.reload({ stream: true }))
@@ -117,11 +118,17 @@ export default taskWrap('[task]: run scripts services', (done: any) => {
 	}
 
 	watchViews(APP_PAGES_SCRIPTS_DIR, compiler)
-	compiler(SCRIPTS_COMMON_JS)(null)
+
+	compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file')(null)
+
+	watchComponents(
+		COMPONENTS_JS,
+		gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'), compiler(PAGES_JS))
+	)
 
 	gulp.watch(
-		[SCRIPTS_JS, COMPONENTS_JS, `!${SCRIPTS_VENDOR_JS}`],
-		gulp.series(compiler(SCRIPTS_COMMON_JS), compiler(PAGES_JS))
+		[SCRIPTS_JS, `!${SCRIPTS_VENDOR_JS}`],
+		gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'), compiler(PAGES_JS))
 	)
 
 	gulp.watch(
