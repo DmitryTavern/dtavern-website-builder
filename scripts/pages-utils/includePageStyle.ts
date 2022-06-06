@@ -1,13 +1,16 @@
 import * as fs from 'fs'
 import { getNamespacePathes } from '../component-utils'
 import { templateLoader } from '../helpers/templateLoader'
+import { mkdir } from '../helpers/mkdir'
 
-const { ARTISAN_TEMPLATE_SCSS_PAGE } = process.env
+const { APP_PAGES_STYLES_DIR, ARTISAN_TEMPLATE_SCSS_PAGE } = process.env
 const findStyleRegexp = /\+style\(.*\n/
 const findTitleRegexp = /title .*\n/
 
 export function includePageStyle(pageName: string) {
 	const pathes = getNamespacePathes(pageName)
+
+	mkdir(APP_PAGES_STYLES_DIR)
 
 	templateLoader().load(ARTISAN_TEMPLATE_SCSS_PAGE).write(pathes.scssPath)
 

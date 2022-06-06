@@ -32,6 +32,7 @@ const defaultPathes = {
 }
 
 export function getPageList(): string[] {
+	if (!fs.existsSync(APP_PAGES_DIR)) return []
 	return fs
 		.readdirSync(APP_PAGES_DIR)
 		.filter((file) => path.extname(file) === '.pug')

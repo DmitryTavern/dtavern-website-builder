@@ -1,13 +1,16 @@
 import * as fs from 'fs'
 import { getNamespacePathes } from '../component-utils'
 import { templateLoader } from '../helpers/templateLoader'
+import { mkdir } from '../helpers/mkdir'
 
-const { ARTISAN_TEMPLATE_JS_PAGE } = process.env
+const { APP_PAGES_SCRIPTS_DIR, ARTISAN_TEMPLATE_JS_PAGE } = process.env
 const findScriptRegexp = /\+script\(.*\n/
 const findBlockRegexp = /block script\n/
 
 export function includePageScript(pageName: string) {
 	const pathes = getNamespacePathes(pageName)
+
+	mkdir(APP_PAGES_SCRIPTS_DIR)
 
 	templateLoader().load(ARTISAN_TEMPLATE_JS_PAGE).write(pathes.jsPath)
 
