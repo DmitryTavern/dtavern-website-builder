@@ -17,11 +17,15 @@ const {
 
 const {
 	readConfig,
+	renameComponent,
 	registerComponent,
 	reinjectComponents,
 	unregisterComponent,
+	existsComponentByCategory,
+	getComponentNamespace,
 	getNamespacePathes,
 	getNamespaceList,
+	getComponentInfo,
 	getPageList,
 } = require('./scripts/component-utils')
 
@@ -66,7 +70,7 @@ const removeComponentsQuestions = [
 		type: 'list',
 		name: 'component',
 		message: 'Select component:',
-		choices: readConfig({ withoutNone: false }).toOneArray(),
+		choices: readConfig().toOneArray(),
 	},
 ]
 
@@ -78,6 +82,20 @@ const renamePageQuestions = [
 		choices: getPageList(),
 	},
 	{ type: 'input', name: 'newName', message: 'New page name (without ext):' },
+]
+
+const renameComponentQuestions = [
+	{
+		type: 'list',
+		name: 'name',
+		message: 'The component you want to rename',
+		choices: readConfig().toOneArray(),
+	},
+	{
+		type: 'input',
+		name: 'newName',
+		message: 'New component name (without category):',
+	},
 ]
 
 const autoimportStatus = () => ARTISAN_COMPONENT_AUTOIMPORT == 'true'
@@ -209,6 +227,29 @@ program
 				}
 
 				renamePage(name, newName)
+			})
+			.catch(inquirerError)
+	})
+
+program
+	.command('rename:component')
+	.description('renaming component')
+	.action(() => {
+		inquirer
+			.prompt(renameComponentQuestions)
+			.then(({ name, newName }) => {
+				const namespace = getComponentNamespace(name)
+				const { category } = getComponentInfo(name)
+
+				if (existsComponentByCategory(category, newName)) {
+					error(
+						`New name '${newName}' is already taken. Please, use other name.`
+					)
+					return
+				}
+
+				renameComponent(name, newName)
+				reinjectComponents(namespace)
 			})
 			.catch(inquirerError)
 	})

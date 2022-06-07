@@ -71,6 +71,18 @@ export function getNamespaceComponents(namespace: string) {
 	return readConfig().toDefault()[namespace] || []
 }
 
+export function getComponentInfo(component: string) {
+	const split = component.split('/')
+
+	if (split.length !== 2)
+		throw new Error('Component is not correct: ' + component)
+
+	return {
+		category: split[0],
+		name: split[1],
+	}
+}
+
 export function getComponentPathes(
 	category: string,
 	component: string
@@ -97,4 +109,18 @@ export function getComponentNamespace(component: string): string {
 	}
 
 	return 'none'
+}
+
+export function existsComponentByCategory(category: string, name: string) {
+	const components = readConfig().toOneArray()
+
+	for (const component of components) {
+		const info = getComponentInfo(component)
+
+		if (info.category === category && info.name === name) {
+			return true
+		}
+	}
+
+	return false
 }
