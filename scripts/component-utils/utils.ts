@@ -88,3 +88,13 @@ export function getComponentPathes(
 
 	return result
 }
+
+export function getComponentNamespace(component: string): string {
+	const namespaces = readConfig().toDefault()
+
+	for (const namespace in namespaces) {
+		if (namespaces[namespace].includes(component)) return namespace
+	}
+
+	return 'none'
+}

@@ -10,7 +10,6 @@ import taskWrap from './helpers/taskWrap'
 import compilerWrap from './helpers/compilerWrap'
 import watchViews from './helpers/watchViews'
 import watchComponents from './helpers/watchComponents'
-import { mkdir } from './helpers/mkdir'
 
 const {
 	NODE_ENV,
@@ -27,8 +26,8 @@ const PAGES_PUG = path.join(APP_PAGES_DIR, '/*.pug')
 const PAGES_ALL_PUG = path.join(APP_PAGES_DIR, '/**/*.pug')
 const COMPONENTS_PUG = path.join(APP_COMPONENTS_DIR, '/**/*.pug')
 
-const compiler: types.Compiler = (input: string) =>
-	compilerWrap('[pug]: compiling all pages', () => {
+const compiler: types.Compiler = (input: string, msg: string) =>
+	compilerWrap(msg ? msg : '[pug]: compiling all pages', () => {
 		if (NODE_ENV === 'development')
 			return gulp
 				.src(input)
@@ -47,11 +46,14 @@ const compiler: types.Compiler = (input: string) =>
 	})
 
 export default taskWrap('[task]: run pages services', (done: any) => {
-	if (NODE_ENV === 'production') return compiler(PAGES_PUG)(done)
+	if (NODE_ENV === 'production') return gulp.series(compiler(PAGES_PUG))(done)
 
 	watchViews(APP_PAGES_DIR, compiler)
 
-	watchComponents(COMPONENTS_PUG, compiler(PAGES_PUG))
+	watchComponents(COMPONENTS_PUG, {
+		global: gulp.series(compiler(PAGES_PUG)),
+		page: compiler,
+	})
 
 	gulp.watch([VIEWS_PUG, `!${PAGES_ALL_PUG}`], compiler(PAGES_PUG))
 })

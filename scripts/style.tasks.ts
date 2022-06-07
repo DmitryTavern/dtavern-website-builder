@@ -13,7 +13,6 @@ import taskWrap from './helpers/taskWrap'
 import compilerWrap from './helpers/compilerWrap'
 import watchViews from './helpers/watchViews'
 import watchComponents from './helpers/watchComponents'
-import { mkdir } from './helpers/mkdir'
 
 const {
 	NODE_ENV,
@@ -68,18 +67,19 @@ export default taskWrap('[task]: run styles services', (done: any) => {
 
 	watchViews(APP_PAGES_STYLES_DIR, compiler)
 
-	compiler(STYLES_COMMON_SASS, '[sass]: compiling common file')(null)
-
-	watchComponents(
-		COMPONENTS_SASS,
-		gulp.series(
-			compiler(STYLES_COMMON_SASS, '[sass]: compiling common file'),
-			compiler(PAGES_SASS)
-		)
+	gulp.series(compiler(STYLES_COMMON_SASS, '[sass]: compiling common file'))(
+		null
 	)
 
+	watchComponents(COMPONENTS_SASS, {
+		global: gulp.series(
+			compiler(STYLES_COMMON_SASS, '[sass]: compiling common file')
+		),
+		page: compiler,
+	})
+
 	gulp.watch(
-		[STYLES_SASS],
+		STYLES_SASS,
 		compiler(STYLES_COMMON_SASS, '[sass]: compiling common file')
 	)
 })

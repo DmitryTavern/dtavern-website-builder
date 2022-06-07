@@ -76,7 +76,7 @@ const rollupCompiler = async (input: string) => {
 }
 
 const compiler: types.Compiler = (input: string, msg: string) =>
-	compilerWrap(msg ? msg : '[sass]: compiling all pages', async () => {
+	compilerWrap(msg ? msg : '[js]: compiling all pages', async () => {
 		if (NODE_ENV === 'development') {
 			rollupCompiler(input)
 			return gulp.src(input).pipe(server.reload({ stream: true }))
@@ -106,8 +106,6 @@ const vendorCompiler: types.Compiler = () =>
 	})
 
 export default taskWrap('[task]: run scripts services', (done: any) => {
-	mkdir(APP_COMPONENTS_DIR)
-
 	if (NODE_ENV === 'production') {
 		gulp.series(
 			vendorCompiler(),
@@ -119,20 +117,22 @@ export default taskWrap('[task]: run scripts services', (done: any) => {
 
 	watchViews(APP_PAGES_SCRIPTS_DIR, compiler)
 
-	compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file')(null)
+	gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'))(null)
 
-	watchComponents(
-		COMPONENTS_JS,
-		gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'), compiler(PAGES_JS))
-	)
+	watchComponents(COMPONENTS_JS, {
+		global: gulp.series(
+			compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file')
+		),
+		page: compiler,
+	})
 
 	gulp.watch(
 		[SCRIPTS_JS, `!${SCRIPTS_VENDOR_JS}`],
-		gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'), compiler(PAGES_JS))
+		gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'))
 	)
 
 	gulp.watch(
-		[SCRIPTS_VENDOR_JS],
+		SCRIPTS_VENDOR_JS,
 		{
 			ignoreInitial: false,
 		},
