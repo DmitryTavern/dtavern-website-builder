@@ -12,11 +12,11 @@ import * as types from './types'
 import watchViews from './helpers/watchViews'
 import watchComponents from './helpers/watchComponents'
 import { setDisplayName } from './helpers/setDisplayName'
+import { isDev, isProd } from './helpers/mode'
 import { mkdir } from './helpers/mkdir'
 import { __ } from './helpers/logger'
 
 const {
-	NODE_ENV,
 	APP_COMPONENTS_DIR,
 	APP_PAGES_SCRIPTS_DIR,
 	APP_ASSETS_SCRIPTS_DIR,
@@ -52,7 +52,7 @@ const rollupCompiler = async (input: string) => {
 			},
 		]
 
-		if (NODE_ENV === 'production') {
+		if (isProd()) {
 			outputsList.push({
 				file: path.join(BUILD_DIR, name.replace('.js', '.min.js')),
 				plugins: [terser.terser()],
@@ -78,24 +78,19 @@ const rollupCompiler = async (input: string) => {
 const compiler: types.Compiler = (input: string) => () => {
 	rollupCompiler(input)
 
-	if (NODE_ENV === 'development') {
-		return gulp.src(input).pipe(server.reload({ stream: true }))
-	}
-
-	if (NODE_ENV === 'production') {
-		return gulp.src(input)
-	}
+	if (isDev()) return gulp.src(input).pipe(server.reload({ stream: true }))
+	if (isProd()) return gulp.src(input)
 }
 
 const vendorCompiler: types.Compiler = (input: string) => () => {
-	if (NODE_ENV === 'development')
+	if (isDev())
 		return gulp
 			.src(input)
 			.pipe(rename({ dirname: '' }))
 			.pipe(gulp.dest(BUILD_VENDOR_DIR))
 			.pipe(server.reload({ stream: true }))
 
-	if (NODE_ENV === 'production')
+	if (isProd())
 		return gulp
 			.src(input)
 			.pipe(uglify())
@@ -116,7 +111,7 @@ export default setDisplayName(taskName, (done: any) => {
 		vendorCompiler(SCRIPTS_VENDOR_JS)
 	)
 
-	if (NODE_ENV === 'production') {
+	if (isProd()) {
 		gulp.series(fnVendor, fnPages, fn)(done)
 		return
 	}

@@ -9,10 +9,10 @@ import * as types from './types'
 import watchViews from './helpers/watchViews'
 import watchComponents from './helpers/watchComponents'
 import { setDisplayName } from './helpers/setDisplayName'
+import { isDev, isProd } from './helpers/mode'
 import { __ } from './helpers/logger'
 
 const {
-	NODE_ENV,
 	APP_VIEWS_DIR,
 	APP_PAGES_DIR,
 	APP_COMPONENTS_DIR,
@@ -27,7 +27,7 @@ const PAGES_ALL_PUG = path.join(APP_PAGES_DIR, '/**/*.pug')
 const COMPONENTS_PUG = path.join(APP_COMPONENTS_DIR, '/**/*.pug')
 
 const compiler: types.Compiler = (input: string) => () => {
-	if (NODE_ENV === 'development')
+	if (isDev())
 		return gulp
 			.src(input)
 			.pipe(pug())
@@ -35,7 +35,7 @@ const compiler: types.Compiler = (input: string) => () => {
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.stream())
 
-	if (NODE_ENV === 'production')
+	if (isProd())
 		return gulp
 			.src(input)
 			.pipe(pug())
@@ -53,7 +53,7 @@ const taskCompilerGlobal = __('TASK_COMPILER_PAGE', {
 export default setDisplayName(taskName, (done: any) => {
 	const fn = setDisplayName(taskCompilerGlobal, compiler(PAGES_PUG))
 
-	if (NODE_ENV === 'production') {
+	if (isProd()) {
 		gulp.series(fn)(done)
 		return
 	}

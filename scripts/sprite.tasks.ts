@@ -5,10 +5,10 @@ import * as svgSprite from 'gulp-svg-sprite'
 import * as types from './types'
 
 import { setDisplayName } from './helpers/setDisplayName'
+import { isProd } from './helpers/mode'
 import { __ } from './helpers/logger'
 
 const {
-	NODE_ENV,
 	APP_ASSETS_SPRITE_DIR,
 	APP_BUILD_DIRNAME,
 	APP_BUILD_IMAGES_DIRNAME,
@@ -39,7 +39,7 @@ const compiler: types.Compiler = (input: string) => () => {
 export default setDisplayName(taskName, (done: any) => {
 	const fn = setDisplayName(taskCompiler, compiler(SPRITE_ICONS))
 
-	if (NODE_ENV === 'production') {
+	if (isProd()) {
 		gulp.series(fn)(done)
 		return
 	}

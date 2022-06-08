@@ -12,10 +12,10 @@ import * as types from './types'
 import watchViews from './helpers/watchViews'
 import watchComponents from './helpers/watchComponents'
 import { setDisplayName } from './helpers/setDisplayName'
+import { isDev, isProd } from './helpers/mode'
 import { __ } from './helpers/logger'
 
 const {
-	NODE_ENV,
 	APP_ASSETS_STYLES_DIR,
 	APP_PAGES_STYLES_DIR,
 	APP_COMPONENTS_DIR,
@@ -32,7 +32,7 @@ const COMPONENTS_SASS = path.join(APP_COMPONENTS_DIR, '/**/*.scss')
 const sassGulp = gulpSass(sass)
 
 const compiler: types.Compiler = (input: string) => () => {
-	if (NODE_ENV === 'development')
+	if (isDev())
 		return gulp
 			.src(input)
 			.pipe(sassGulp().on('error', sassGulp.logError))
@@ -41,7 +41,7 @@ const compiler: types.Compiler = (input: string) => () => {
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.stream())
 
-	if (NODE_ENV === 'production')
+	if (isProd())
 		return gulp
 			.src(input)
 			.pipe(sassGulp().on('error', sassGulp.logError))
@@ -66,7 +66,7 @@ export default setDisplayName(taskName, (done: any) => {
 	const fn = setDisplayName(taskCompilerGlobal, compiler(STYLES_COMMON_SASS))
 	const fnPages = setDisplayName(taskCompilerPages, compiler(PAGES_SASS))
 
-	if (NODE_ENV === 'production') {
+	if (isProd()) {
 		gulp.series(fn, fnPages)(done)
 		return
 	}

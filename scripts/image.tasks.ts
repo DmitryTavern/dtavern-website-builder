@@ -6,14 +6,11 @@ import * as image from 'gulp-image'
 import * as types from './types'
 
 import { setDisplayName } from './helpers/setDisplayName'
+import { isDev, isProd } from './helpers/mode'
 import { __ } from './helpers/logger'
 
-const {
-	NODE_ENV,
-	APP_ASSETS_IMAGES_DIR,
-	APP_BUILD_DIRNAME,
-	APP_BUILD_IMAGES_DIRNAME,
-} = process.env
+const { APP_ASSETS_IMAGES_DIR, APP_BUILD_DIRNAME, APP_BUILD_IMAGES_DIRNAME } =
+	process.env
 
 const taskName = __('TASK_IMAGES')
 const taskCompilerImages = __('TASK_COMPILER_IMAGES')
@@ -37,13 +34,13 @@ const SRC_IMAGES_WEBP = [IMAGES_WEBP_FILES, `!${IMAGES_FAVICON}`]
 const SRC_IMAGES_FAVICON = [IMAGES_FAVICON]
 
 const imagesCompiler: types.Compiler = (input: string | string[]) => () => {
-	if (NODE_ENV === 'development')
+	if (isDev())
 		return gulp
 			.src(input)
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.reload({ stream: true }))
 
-	if (NODE_ENV === 'production')
+	if (isProd())
 		return gulp
 			.src(input)
 			.pipe(
@@ -55,14 +52,14 @@ const imagesCompiler: types.Compiler = (input: string | string[]) => () => {
 }
 
 const webpCompiler: types.Compiler = (input: string | string[]) => () => {
-	if (NODE_ENV === 'development')
+	if (isDev())
 		return gulp
 			.src(input)
 			.pipe(webp())
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.reload({ stream: true }))
 
-	if (NODE_ENV === 'production')
+	if (isProd())
 		return gulp
 			.src(input)
 			.pipe(
@@ -74,14 +71,13 @@ const webpCompiler: types.Compiler = (input: string | string[]) => () => {
 }
 
 const faviconCompiler: types.Compiler = (input: string | string[]) => () => {
-	if (NODE_ENV === 'development')
+	if (isDev())
 		return gulp
 			.src(input)
 			.pipe(gulp.dest(BUILD_FAVICON_DIR))
 			.pipe(server.reload({ stream: true }))
 
-	if (NODE_ENV === 'production')
-		return gulp.src(input).pipe(gulp.dest(BUILD_FAVICON_DIR))
+	if (isProd()) return gulp.src(input).pipe(gulp.dest(BUILD_FAVICON_DIR))
 }
 
 export default setDisplayName(taskName, (done: any) => {
@@ -92,7 +88,7 @@ export default setDisplayName(taskName, (done: any) => {
 		faviconCompiler(SRC_IMAGES_FAVICON)
 	)
 
-	if (NODE_ENV === 'production') {
+	if (isProd()) {
 		gulp.series(fn, fnWebp, fnFavicon)(done)
 		return
 	}
