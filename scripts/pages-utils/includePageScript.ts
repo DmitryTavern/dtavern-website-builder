@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import { getNamespacePathes } from '../component-utils'
 import { templateLoader } from '../helpers/templateLoader'
+import { __, log } from '../helpers/logger'
 import { mkdir } from '../helpers/mkdir'
 
 const { APP_PAGES_SCRIPTS_DIR, ARTISAN_TEMPLATE_JS_PAGE } = process.env
@@ -35,4 +36,6 @@ export function includePageScript(pageName: string) {
 	)
 
 	fs.writeFileSync(pathes.pugPath, pugData)
+
+	log(__('LOG_SUCCESS_PAGE_INCLUDES', { type: 'script', name: pageName }))
 }

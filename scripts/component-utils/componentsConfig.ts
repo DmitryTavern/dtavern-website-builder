@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { log } from '../helpers/logger'
 import { mkdir } from '../helpers/mkdir'
+import { __, log } from '../helpers/logger'
 import { registerComponent } from './registerComponent'
 
 export interface ComponentsConfig {
@@ -63,9 +63,7 @@ function checkConfigIntegrity() {
 		registerComponent('none', category, name)
 	}
 
-	log(
-		`Components Config Integrity: found components without namesapce. They are added to 'none' namespace`
-	)
+	log(__('LOG_COMPONENTS_CONFIG_INTEGRITY'))
 }
 
 export function readConfig(options: ReadOptionsFn = {}): ReadReturnFn {

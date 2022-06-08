@@ -1,3 +1,4 @@
+import { __, log } from '../helpers/logger'
 import { readConfig, writeConfig } from './componentsConfig'
 
 export function registerComponent(
@@ -22,4 +23,11 @@ export function registerComponent(
 	config[namespace] = includedComponents.map((arr: string[]) => arr.join('/'))
 
 	writeConfig(config)
+
+	log(
+		__('LOG_SUCCESS_COMPONENT_REGISTRED', {
+			namespace,
+			component: `${category}/${component}`,
+		})
+	)
 }

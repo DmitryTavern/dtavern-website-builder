@@ -12,4 +12,5 @@ export {
 	getComponentNamespace,
 	existsComponentByCategory,
 	getPageList,
+	existsPage,
 } from './utils'

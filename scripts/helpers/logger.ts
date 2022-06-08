@@ -14,19 +14,12 @@ type MessagePayload<T extends MessageKey> =
 const messages = {
 	TASK_COMPILER_PAGE: {
 		message: "[page/${type}]: compiling '${namespace}' page",
-		payload: {
-			type: '',
-			namespace: '',
-		},
+		payload: { type: '', namespace: '' },
 	},
 
 	TASK_COMPILER_COMPONENT: {
 		message: "[${name}/${type}]: compiling '${namespace}' page",
-		payload: {
-			name: '',
-			type: '',
-			namespace: '',
-		},
+		payload: { name: '', type: '', namespace: '' },
 	},
 
 	TASK_HTML: '[task]: run html service',
@@ -53,36 +46,108 @@ const messages = {
 
 	TASK_COMPILER_SPRITE: '[global/sprite]: compiling sprite',
 
+	ERROR: 'Something went wrong',
+	ERROR_PAGE_FILE_EXISTS: {
+		message: '${file} file already exitst. Use -f for force creating',
+		payload: { file: '' },
+	},
+	ERROR_COMPONENT_EXISTS: {
+		message:
+			'Component "${component}" in "${category}" already exitst. Use -f for force creating',
+		payload: { component: '', category: '' },
+	},
+	ERROR_NAME_TAKEN: {
+		message: 'New name "${name}" is already taken. Please, use other name',
+		payload: { name: '' },
+	},
+	ERROR_COMPONENT_IS_NOT_CORRECT: {
+		message:
+			'Component is not correct: "${component}". Need: "{category}/{name}"',
+		payload: { component: '' },
+	},
+	ERROR_TEMPLATE_NOT_FOUND: {
+		message: 'Template "${name}" in template loader not found',
+		payload: { name: '' },
+	},
+
 	WARN_COMPILER_PAGEDIR: {
 		message:
 			'[viewsWatcher]: You created "${dirname}" dir in "${dir}", but file for this dir not found. Watcher will be ignore it.',
-		payload: {
-			dirname: '',
-			dir: '',
-		},
+		payload: { dirname: '', dir: '' },
 	},
-
 	WARN_COMPILER_COMPONENTDIR: {
 		message:
 			'[componentWatcher]: Not found file with "${ext}" ext or component have not path to page',
-		payload: {
-			ext: '',
-		},
+		payload: { ext: '' },
+	},
+	WARN_AUTOIMPORT_TURN_OFF: 'Autoimport turn off in .env',
+	WARN_REINJECT_NONE:
+		'Please, don\'t use "none" namespace in reinject function',
+	WARN_PAGE_RENAME_OVERWRITE: {
+		message: 'Rename function overwrite existing file "${file}"',
+		payload: { file: '' },
+	},
+	WARN_PAGE_RENAME_MERGE: {
+		message:
+			'Rename function marge existing directory: "${pageDir}" with "${dir}"',
+		payload: { pageDir: '', dir: '' },
 	},
 
 	LOG_CREATE_DIR: {
-		message: 'dir "${dir}" was created',
-		payload: {
-			dir: ''
-		}
+		message: 'Dir "${dir}" was created',
+		payload: { dir: '' },
 	},
-
 	LOG_REMOVE_DIR: {
-		message: 'dir "${dir}" was removed',
-		payload: {
-			dir: ''
-		}
-	}
+		message: 'Dir "${dir}" was removed',
+		payload: { dir: '' },
+	},
+	LOG_SUCCESS_PAGE_ADDED: {
+		message: 'Page "${name}" success added',
+		payload: { name: '' },
+	},
+	LOG_SUCCESS_PAGE_INCLUDES: {
+		message: 'Page ${type} was success included in "${name}" page',
+		payload: { type: '', name: '' },
+	},
+	LOG_SUCCESS_PAGE_RENAMED: {
+		message: 'Page "${oldName}" success renamed to "${newName}"',
+		payload: { oldName: '', newName: '' },
+	},
+	LOG_SUCCESS_COMPONENT_ADDED: {
+		message: 'Component "${name}" success added',
+		payload: { name: '' },
+	},
+	LOG_SUCCESS_COMPONENT_REGISTRED: {
+		message:
+			'Component "${component}" success registred to "${namespace}" namespace',
+		payload: { component: '', namespace: '' },
+	},
+	LOG_SUCCESS_COMPONENT_UNREGISTRED: {
+		message: 'Component "${component}" success unregistred',
+		payload: { component: '' },
+	},
+	LOG_SUCCESS_NAMESPACE_REINJECTED: {
+		message: 'Components of "${namespace}" namespace success reinjected',
+		payload: { namespace: '' },
+	},
+	LOG_SUCCESS_COMPONENT_RENAMED: {
+		message: 'Component "${oldName}" success renamed to "${newName}"',
+		payload: { oldName: '', newName: '' },
+	},
+	LOG_COMPONENTS_CONFIG_INTEGRITY:
+		'Components config integrity check found components without namesapce. They are added to "none" namespace',
+	LOG_NAMESPACE_FILES_CREATED_PAGE: {
+		message: 'Was created "${namespace}" page for component',
+		payload: { namespace: '' },
+	},
+	LOG_NAMESPACE_FILES_CREATED_STYLE: {
+		message: 'Was created style for "${namespace}" page for component',
+		payload: { namespace: '' },
+	},
+	LOG_NAMESPACE_FILES_CREATED_SCRIPT: {
+		message: 'Was created script for "${namespace}" page for component',
+		payload: { namespace: '' },
+	},
 }
 
 export function __<T extends MessageKey>(

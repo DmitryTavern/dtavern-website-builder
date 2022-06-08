@@ -6,7 +6,7 @@ const inquirer = require('inquirer')
 const { program } = require('commander')
 const { mkdir } = require('./scripts/helpers/mkdir')
 const { rmdir } = require('./scripts/helpers/rmdir')
-const { log, error, warn } = require('./scripts/helpers/logger')
+const { __, log, error, warn } = require('./scripts/helpers/logger')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
 const {
 	createPage,
@@ -27,6 +27,7 @@ const {
 	getNamespaceList,
 	getComponentInfo,
 	getPageList,
+	existsPage,
 } = require('./scripts/component-utils')
 
 const {
@@ -99,7 +100,7 @@ const renameComponentQuestions = [
 ]
 
 const autoimportStatus = () => ARTISAN_COMPONENT_AUTOIMPORT == 'true'
-const inquirerError = (err) => error(`something went wrong`, err)
+const inquirerError = (err) => error(__('ERROR'), err)
 
 program
 	.command('create:page')
@@ -112,22 +113,20 @@ program
 				const pathes = getNamespacePathes(name)
 
 				if (!options.f && pathes.pugFileExists) {
-					return error('Pug file already exitst. Use -f for force creating')
+					return error(__('ERROR_PAGE_FILE_EXISTS', { file: 'Pug' }))
 				}
 
 				if (!options.f && pathes.scssFileExists && scss) {
-					return error('Scss file already exitst. Use -f for force creating')
+					return error(__('ERROR_PAGE_FILE_EXISTS', { file: 'Scss' }))
 				}
 
 				if (!options.f && pathes.jsFileExists && js) {
-					return error('Js file already exitst. Use -f for force creating')
+					return error(__('ERROR_PAGE_FILE_EXISTS', { file: 'Js' }))
 				}
 
 				createPage(name)
 				if (scss) includePageStyle(name)
 				if (js) includePageScript(name)
-
-				log(`Page '${name}.pug' success added`)
 			})
 			.catch(inquirerError)
 	})
@@ -147,7 +146,9 @@ program
 				const targetPath = path.join(targetDirPath, name)
 
 				if (!options.f && fs.existsSync(targetDirPath)) {
-					return error('Component already exitst. Use -f for force creating')
+					return error(
+						__('ERROR_COMPONENT_EXISTS', { component: name, category })
+					)
 				}
 
 				mkdir(targetDirPath)
@@ -172,13 +173,13 @@ program
 						.write(`${targetPath}.js`)
 				}
 
+				log(__('LOG_SUCCESS_COMPONENT_ADDED', { name }))
+
 				registerComponent(targeteNamespace, category, name)
 
 				if (autoimportStatus()) {
 					reinjectComponents(targeteNamespace)
 				}
-
-				log(`Component success added`)
 			})
 			.catch(inquirerError)
 	})
@@ -187,11 +188,11 @@ program
 	.command('reinject:components')
 	.description('reinject all components')
 	.action(() => {
-		if (autoimportStatus()) {
-			reinjectComponents('all')
-		} else {
-			warn('Autoimport turn off in .env')
+		if (!autoimportStatus()) {
+			return warn(__('WARN_AUTOIMPORT_TURN_OFF'))
 		}
+
+		reinjectComponents('all')
 	})
 
 program
@@ -219,11 +220,8 @@ program
 		inquirer
 			.prompt(renamePageQuestions)
 			.then(({ name, newName }) => {
-				if (getPageList().includes(newName)) {
-					error(
-						`New name '${newName}' is already taken. Please, use other name.`
-					)
-					return
+				if (existsPage(newName)) {
+					return error(__('ERROR_NAME_TAKEN', { name: newName }))
 				}
 
 				renamePage(name, newName)
@@ -242,9 +240,7 @@ program
 				const { category } = getComponentInfo(name)
 
 				if (existsComponentByCategory(category, newName)) {
-					error(
-						`New name '${newName}' is already taken. Please, use other name.`
-					)
+					error(__('ERROR_NAME_TAKEN', { name: newName }))
 					return
 				}
 

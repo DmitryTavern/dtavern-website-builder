@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { __ } from '../helpers/logger'
 import { readConfig } from './componentsConfig'
 
 const {
@@ -39,6 +40,10 @@ export function getPageList(): string[] {
 		.map((file) => file.replace(/\..*/, ''))
 }
 
+export function existsPage(page: string) {
+	return getPageList().includes(page)
+}
+
 export function getNamespaceList(): string[] {
 	return ['global', ...getPageList(), 'none']
 }
@@ -74,8 +79,7 @@ export function getNamespaceComponents(namespace: string) {
 export function getComponentInfo(component: string) {
 	const split = component.split('/')
 
-	if (split.length !== 2)
-		throw new Error('Component is not correct: ' + component)
+	if (split.length !== 2) throw new Error(__('ERROR_COMPONENT_IS_NOT_CORRECT'))
 
 	return {
 		category: split[0],

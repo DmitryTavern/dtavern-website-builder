@@ -1,8 +1,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as glob from 'glob'
-import { log, warn } from '../helpers/logger'
 import { getPageTitle } from './getPageTitle'
+import { __, log, warn } from '../helpers/logger'
 import { readConfig, getNamespacePathes, writeConfig } from '../component-utils'
 
 const { APP_PAGES_DIR } = process.env
@@ -32,12 +32,15 @@ function renameFile(pageName: string, newPageName: string, file: string) {
 	const newPageDir = file.replace(`${pageName}.${fileExt}`, `${newPageName}`)
 
 	if (fs.existsSync(newPage)) {
-		warn(`Rename function overwrite existing file: '${newPage}'`)
+		warn(__('WARN_PAGE_RENAME_OVERWRITE', { file: newPage }))
 	}
 
 	if (fs.existsSync(newPageDir)) {
 		warn(
-			`Rename function marge existing directory: '${newPageDir}' with '${pageDir}'`
+			__('WARN_PAGE_RENAME_MERGE', {
+				dir: newPageDir,
+				pageDir,
+			})
 		)
 	}
 
@@ -113,5 +116,7 @@ export function renamePage(pageName: string, newPageName: string) {
 		fs.writeFileSync(file, fileData)
 	}
 
-	log(`Page '${pageName}' success renamed to '${newPageName}'`)
+	log(
+		__('LOG_SUCCESS_PAGE_RENAMED', { oldName: pageName, newName: newPageName })
+	)
 }

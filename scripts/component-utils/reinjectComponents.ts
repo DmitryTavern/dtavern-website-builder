@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { log, warn } from '../helpers/logger'
 import { readConfig } from './componentsConfig'
+import { __, log, warn } from '../helpers/logger'
 import { createPage, includePageScript, includePageStyle } from '../pages-utils'
 import {
 	getNamespaceList,
@@ -42,19 +42,19 @@ const checkNamespaceFiles = (namespace: string) => {
 		if (needPug && needScss && needJs) break
 	}
 
-	if (!pathes.pugFileExists && needScss) {
+	if (!pathes.pugFileExists && needPug) {
 		createPage(namespace)
-		log(`[checkNamespaceFiles]: Was created '${namespace}' page`)
+		log(__('LOG_NAMESPACE_FILES_CREATED_PAGE', { namespace }))
 	}
 
 	if (!pathes.scssFileExists && needScss) {
 		includePageStyle(namespace)
-		log(`[checkNamespaceFiles]: For '${namespace}' page was created style`)
+		log(__('LOG_NAMESPACE_FILES_CREATED_STYLE', { namespace }))
 	}
 
 	if (!pathes.jsFileExists && needJs) {
 		includePageScript(namespace)
-		log(`[checkNamespaceFiles]: For '${namespace}' page was created script`)
+		log(__('LOG_NAMESPACE_FILES_CREATED_SCRIPT', { namespace }))
 	}
 }
 
@@ -108,8 +108,7 @@ const reinjectComponentsInFile = (namespace: string, file: string) => {
 }
 
 export function reinjectComponents(namespace: Namespace) {
-	if (namespace === 'none')
-		return warn("[reinjectComponents]: please, don't use 'none' namespace")
+	if (namespace === 'none') return warn(__('WARN_REINJECT_NONE'))
 
 	const config = readConfig().toDefault()
 
@@ -127,5 +126,5 @@ export function reinjectComponents(namespace: Namespace) {
 		}
 	}
 
-	log(`${namespace} namespace components success reinjected`)
+	log(__('LOG_SUCCESS_NAMESPACE_REINJECTED', { namespace }))
 }

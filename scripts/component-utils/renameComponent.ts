@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as glob from 'glob'
+import { __, log } from '../helpers/logger'
 import { registerComponent } from './registerComponent'
 import { unregisterComponent } from './unregisterComponent'
 import { getComponentInfo, getComponentNamespace } from './utils'
@@ -29,4 +30,11 @@ export function renameComponent(oldComponent: string, newName: string) {
 	}
 
 	registerComponent(namespace, category, newName)
+
+	log(
+		__('LOG_SUCCESS_COMPONENT_RENAMED', {
+			oldName: oldComponent,
+			newName,
+		})
+	)
 }
