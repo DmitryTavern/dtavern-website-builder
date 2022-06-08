@@ -3,6 +3,8 @@ export default {
 	WARN_AUTOIMPORT_TURN_OFF: 'Autoimport turn off in .env',
 	WARN_REINJECT_NONE:
 		'Please, don\'t use "none" namespace in reinject function',
+	WARN_NON_EXISTS_STORE_COMPONENTS:
+		'Components store have not components or all components already imported',
 
 	// Compilers
 	WARN_COMPILER_PAGEDIR: {

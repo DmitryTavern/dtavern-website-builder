@@ -8,6 +8,10 @@ export default {
 		message: 'Dir "${dir}" was removed',
 		payload: { dir: '' },
 	},
+	LOG_COPY_DIR: {
+		message: 'Dir "${formDir}" was copied to "${toDir}"',
+		payload: { formDir: '', toDir: '' },
+	},
 
 	// Pages
 	LOG_SUCCESS_PAGE_ADDED: {

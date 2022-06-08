@@ -6,6 +6,7 @@ const inquirer = require('inquirer')
 const { program } = require('commander')
 const { mkdir } = require('./scripts/helpers/mkdir')
 const { rmdir } = require('./scripts/helpers/rmdir')
+const { cpdir } = require('./scripts/helpers/cpdir')
 const { __, log, error, warn } = require('./scripts/helpers/logger')
 const { templateLoader } = require('./scripts/helpers/templateLoader')
 const {
@@ -21,6 +22,7 @@ const {
 	registerComponent,
 	reinjectComponents,
 	unregisterComponent,
+	getComponentsStore,
 	existsComponentByCategory,
 	getComponentNamespace,
 	getNamespacePathes,
@@ -31,6 +33,7 @@ const {
 } = require('./scripts/component-utils')
 
 const {
+	APP_PROJECT_STORE,
 	APP_COMPONENTS_DIR,
 	ARTISAN_TEMPLATE_PUG_COMPONENT,
 	ARTISAN_TEMPLATE_SCSS_COMPONENT,
@@ -40,6 +43,16 @@ const {
 } = process.env
 
 program.name('artisan')
+
+const allNamespaces = getNamespaceList()
+const allComponents = readConfig().toOneArray()
+const allCategories = ARTISAN_COMPONENT_CATEGORIES.split(',')
+const allComponentNames = allComponents.map(
+	(component) => getComponentInfo(component).name
+)
+const allStoreComponents = getComponentsStore().filter(
+	(component) => !allComponentNames.includes(component)
+)
 
 const createPageQuestions = [
 	{ type: 'input', name: 'name', message: 'Page name:' },
@@ -56,13 +69,13 @@ const createComponentQuestions = [
 		type: 'list',
 		name: 'category',
 		message: 'Select component category:',
-		choices: ARTISAN_COMPONENT_CATEGORIES.split(','),
+		choices: allCategories,
 	},
 	{
 		type: 'list',
 		name: 'namespace',
 		message: 'Where to connect this component?',
-		choices: getNamespaceList(),
+		choices: allNamespaces,
 	},
 ]
 
@@ -71,7 +84,7 @@ const removeComponentsQuestions = [
 		type: 'list',
 		name: 'component',
 		message: 'Select component:',
-		choices: readConfig().toOneArray(),
+		choices: allComponents,
 	},
 ]
 
@@ -90,12 +103,21 @@ const renameComponentQuestions = [
 		type: 'list',
 		name: 'name',
 		message: 'The component you want to rename',
-		choices: readConfig().toOneArray(),
+		choices: allComponents,
 	},
 	{
 		type: 'input',
 		name: 'newName',
 		message: 'New component name (without category):',
+	},
+]
+
+const importComponentsQuestions = [
+	{
+		type: 'checkbox',
+		name: 'storeComponents',
+		message: 'Select components for import form store:',
+		choices: allStoreComponents,
 	},
 ]
 
@@ -246,6 +268,59 @@ program
 
 				renameComponent(name, newName)
 				reinjectComponents(namespace)
+			})
+			.catch(inquirerError)
+	})
+
+program
+	.command('import:components')
+	.description('importing components from store')
+	.action(() => {
+		if (allStoreComponents.length === 0) {
+			return warn(__('WARN_NON_EXISTS_STORE_COMPONENTS'))
+		}
+
+		inquirer
+			.prompt(importComponentsQuestions)
+			.then(({ storeComponents }) => {
+				const questions = []
+
+				for (const component of storeComponents) {
+					questions.push(
+						{
+							type: 'list',
+							name: `category:${component}`,
+							message: `Select category for \x1b[44m${component}\x1b[0m:`,
+							choices: allCategories,
+						},
+						{
+							type: 'list',
+							name: `namespace:${component}`,
+							message: `Select namespace for \x1b[44m${component}\x1b[0m:`,
+							choices: allNamespaces,
+						}
+					)
+				}
+
+				inquirer
+					.prompt(questions)
+					.then((choices) => {
+						for (const name of storeComponents) {
+							const category = choices[`category:${name}`]
+							const namespace = choices[`namespace:${name}`]
+							const fromPath = path.join(APP_PROJECT_STORE, name)
+							const toPath = path.join(APP_COMPONENTS_DIR, category, name)
+
+							cpdir(fromPath, toPath)
+
+							registerComponent(namespace, category, name)
+
+							if (autoimportStatus()) {
+								reinjectComponents(namespace)
+							}
+						}
+					})
+					.catch(inquirerError)
 			})
 			.catch(inquirerError)
 	})

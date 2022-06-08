@@ -11,6 +11,7 @@ export {
 	getComponentPathes,
 	getComponentNamespace,
 	existsComponentByCategory,
+	getComponentsStore,
 	getPageList,
 	existsPage,
 } from './utils'

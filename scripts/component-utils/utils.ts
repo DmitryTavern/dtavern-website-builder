@@ -4,6 +4,7 @@ import { __ } from '../helpers/logger'
 import { readConfig } from './componentsConfig'
 
 const {
+	APP_PROJECT_STORE,
 	APP_COMPONENTS_DIR,
 	APP_PAGES_DIR,
 	APP_PAGES_STYLES_DIR,
@@ -30,6 +31,15 @@ const defaultPathes = {
 	pugFileExists: false,
 	scssFileExists: false,
 	jsFileExists: false,
+}
+
+export function getComponentsStore() {
+	if (!fs.existsSync(APP_PROJECT_STORE)) return []
+	return fs
+		.readdirSync(APP_PROJECT_STORE)
+		.filter((file) =>
+			fs.lstatSync(path.join(APP_PROJECT_STORE, file)).isDirectory()
+		)
 }
 
 export function getPageList(): string[] {
