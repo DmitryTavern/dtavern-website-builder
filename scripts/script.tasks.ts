@@ -9,11 +9,11 @@ import * as uglify from 'gulp-uglify'
 import * as rename from 'gulp-rename'
 import * as types from './types'
 
-import taskWrap from './helpers/taskWrap'
-import compilerWrap from './helpers/compilerWrap'
 import watchViews from './helpers/watchViews'
 import watchComponents from './helpers/watchComponents'
+import { setDisplayName } from './helpers/setDisplayName'
 import { mkdir } from './helpers/mkdir'
+import { __ } from './helpers/logger'
 
 const {
 	NODE_ENV,
@@ -75,60 +75,65 @@ const rollupCompiler = async (input: string) => {
 	}
 }
 
-const compiler: types.Compiler = (input: string, msg: string) =>
-	compilerWrap(msg ? msg : '[js]: compiling all pages', async () => {
-		if (NODE_ENV === 'development') {
-			rollupCompiler(input)
-			return gulp.src(input).pipe(server.reload({ stream: true }))
-		}
+const compiler: types.Compiler = (input: string) => () => {
+	rollupCompiler(input)
 
-		if (NODE_ENV === 'production') {
-			rollupCompiler(input)
-			return gulp.src(input)
-		}
-	})
+	if (NODE_ENV === 'development') {
+		return gulp.src(input).pipe(server.reload({ stream: true }))
+	}
 
-const vendorCompiler: types.Compiler = () =>
-	compilerWrap('[js]: compiling vendor', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(SCRIPTS_VENDOR_JS)
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_VENDOR_DIR))
-				.pipe(server.reload({ stream: true }))
-
-		if (NODE_ENV === 'production')
-			return gulp
-				.src(SCRIPTS_VENDOR_JS)
-				.pipe(uglify())
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_VENDOR_DIR))
-	})
-
-export default taskWrap('[task]: run scripts services', (done: any) => {
 	if (NODE_ENV === 'production') {
-		gulp.series(
-			vendorCompiler(),
-			compiler(SCRIPTS_COMMON_JS),
-			compiler(PAGES_JS)
-		)(done)
+		return gulp.src(input)
+	}
+}
+
+const vendorCompiler: types.Compiler = (input: string) => () => {
+	if (NODE_ENV === 'development')
+		return gulp
+			.src(input)
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_VENDOR_DIR))
+			.pipe(server.reload({ stream: true }))
+
+	if (NODE_ENV === 'production')
+		return gulp
+			.src(input)
+			.pipe(uglify())
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_VENDOR_DIR))
+}
+
+const taskName = __('TASK_SCRIPT')
+const taskCompilerPages = __('TASK_COMPILER_SCRIPT_PAGES')
+const taskCompilerGlobal = __('TASK_COMPILER_SCRIPT_GLOBAL')
+const taskCompilerVendor = __('TASK_COMPILER_SCRIPT_VENDOR')
+
+export default setDisplayName(taskName, (done: any) => {
+	const fn = setDisplayName(taskCompilerGlobal, compiler(SCRIPTS_COMMON_JS))
+	const fnPages = setDisplayName(taskCompilerPages, compiler(PAGES_JS))
+	const fnVendor = setDisplayName(
+		taskCompilerVendor,
+		vendorCompiler(SCRIPTS_VENDOR_JS)
+	)
+
+	if (NODE_ENV === 'production') {
+		gulp.series(fnVendor, fnPages, fn)(done)
 		return
 	}
 
 	watchViews(APP_PAGES_SCRIPTS_DIR, compiler)
 
-	gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'))(null)
-
 	watchComponents(COMPONENTS_JS, {
-		global: gulp.series(
-			compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file')
-		),
+		global: fnPages,
 		page: compiler,
 	})
 
 	gulp.watch(
 		[SCRIPTS_JS, `!${SCRIPTS_VENDOR_JS}`],
-		gulp.series(compiler(SCRIPTS_COMMON_JS, '[js]: compiling common file'))
+		{
+			ignoreInitial: false,
+		},
+		fn
 	)
 
 	gulp.watch(
@@ -136,6 +141,6 @@ export default taskWrap('[task]: run scripts services', (done: any) => {
 		{
 			ignoreInitial: false,
 		},
-		vendorCompiler()
+		fnVendor
 	)
 })

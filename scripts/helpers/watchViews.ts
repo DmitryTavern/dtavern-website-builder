@@ -2,15 +2,17 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as gulp from 'gulp'
 import * as types from '../types'
+import { setDisplayName } from './setDisplayName'
+import { __, warn } from './logger'
 import { mkdir } from './mkdir'
-import { warn } from './logger'
 
 const watchers = {}
 
 const getFileInfo = (string: string) => {
+	const ext = path.extname(string).replace('.', '')
 	const pagename = path.basename(string).replace(/\..*$/, '')
 
-	return { pagename }
+	return { pagename, ext }
 }
 
 const getDirInfo = (string: string) => {
@@ -19,22 +21,16 @@ const getDirInfo = (string: string) => {
 	return { dirname }
 }
 
-interface getCompilerOptions {
-	msg: string
-	path: string
+const getCompiler = (
+	path: string,
 	compiler: types.Compiler
-}
+): ReturnType<types.Compiler> => {
+	const compilerReturn = compiler(path)
 
-const getCompiler = (options: getCompilerOptions) => {
-	const compilerReturn = options.compiler(options.path)
-	const fn = (done: any) => {
-		if (!fs.existsSync(options.path)) return
+	return (done: any) => {
+		if (!fs.existsSync(path)) return
 		return compilerReturn(done)
 	}
-
-	fn.displayName = options.msg
-
-	return fn
 }
 
 export default (dir: string, compiler: types.Compiler) => {
@@ -47,13 +43,17 @@ export default (dir: string, compiler: types.Compiler) => {
 			depth: 0,
 		})
 		.on('add', (pagefile: string) => {
-			const { pagename } = getFileInfo(pagefile)
+			const { ext, pagename } = getFileInfo(pagefile)
+			let type = ''
 
-			const fn = getCompiler({
-				msg: `compiling '${pagename}' page`,
-				path: pagefile,
-				compiler,
-			})
+			if (ext === 'pug') type = 'html'
+			if (ext === 'scss') type = 'style'
+			if (ext === 'js') type = 'script'
+
+			const fn = setDisplayName(
+				__('TASK_COMPILER_PAGE', { type, namespace: pagename }),
+				getCompiler(pagefile, compiler)
+			)
 
 			watchers[pagename] = gulp.watch(pagefile, { ignoreInitial: false }, fn)
 		})
@@ -67,7 +67,10 @@ export default (dir: string, compiler: types.Compiler) => {
 				watchers[dirname].add(watchDir)
 			} else {
 				warn(
-					`You created '${dirname}' dir in ${dir}, but file for this dir not found. Watcher will be ignore it.`
+					__('WARN_COMPILER_PAGEDIR', {
+						dirname,
+						dir,
+					})
 				)
 			}
 		})

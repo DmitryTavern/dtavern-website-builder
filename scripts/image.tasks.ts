@@ -5,8 +5,8 @@ import * as webp from 'gulp-webp'
 import * as image from 'gulp-image'
 import * as types from './types'
 
-import taskWrap from './helpers/taskWrap'
-import compilerWrap from './helpers/compilerWrap'
+import { setDisplayName } from './helpers/setDisplayName'
+import { __ } from './helpers/logger'
 
 const {
 	NODE_ENV,
@@ -15,6 +15,10 @@ const {
 	APP_BUILD_IMAGES_DIRNAME,
 } = process.env
 
+const taskName = __('TASK_IMAGES')
+const taskCompilerImages = __('TASK_COMPILER_IMAGES')
+const taskCompilerWebp = __('TASK_COMPILER_IMAGES_WEBP')
+const taskCompilerFavicon = __('TASK_COMPILER_IMAGES_FAVICON')
 const IMAGES_FILES = path.join(APP_ASSETS_IMAGES_DIR, '/**/*.*')
 const IMAGES_FAVICON = path.join(APP_ASSETS_IMAGES_DIR, 'favicon/**.*')
 const IMAGES_WEBP_FILES = path.join(
@@ -28,83 +32,92 @@ const BUILD_FAVICON_DIR = path.join(
 	'favicon'
 )
 
-const imagesCompiler: types.Compiler = () =>
-	compilerWrap('[img]: compiling all images', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src([IMAGES_FILES, `!${IMAGES_FAVICON}`])
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(server.reload({ stream: true }))
+const SRC_IMAGES = [IMAGES_FILES, `!${IMAGES_FAVICON}`]
+const SRC_IMAGES_WEBP = [IMAGES_WEBP_FILES, `!${IMAGES_FAVICON}`]
+const SRC_IMAGES_FAVICON = [IMAGES_FAVICON]
 
-		if (NODE_ENV === 'production')
-			return gulp
-				.src([IMAGES_FILES, `!${IMAGES_FAVICON}`])
-				.pipe(
-					image({
-						svgo: false,
-					})
-				)
-				.pipe(gulp.dest(BUILD_DIR))
-	})
+const imagesCompiler: types.Compiler = (input: string | string[]) => () => {
+	if (NODE_ENV === 'development')
+		return gulp
+			.src(input)
+			.pipe(gulp.dest(BUILD_DIR))
+			.pipe(server.reload({ stream: true }))
 
-const webpCompiler: types.Compiler = () =>
-	compilerWrap('[webp]: compiling all files', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src([IMAGES_WEBP_FILES, `!${IMAGES_FAVICON}`])
-				.pipe(webp())
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(server.reload({ stream: true }))
+	if (NODE_ENV === 'production')
+		return gulp
+			.src(input)
+			.pipe(
+				image({
+					svgo: false,
+				})
+			)
+			.pipe(gulp.dest(BUILD_DIR))
+}
 
-		if (NODE_ENV === 'production')
-			return gulp
-				.src([IMAGES_WEBP_FILES, `!${IMAGES_FAVICON}`])
-				.pipe(
-					webp({
-						quality: 60,
-					})
-				)
-				.pipe(gulp.dest(BUILD_DIR))
-	})
+const webpCompiler: types.Compiler = (input: string | string[]) => () => {
+	if (NODE_ENV === 'development')
+		return gulp
+			.src(input)
+			.pipe(webp())
+			.pipe(gulp.dest(BUILD_DIR))
+			.pipe(server.reload({ stream: true }))
 
-const faviconCompiler: types.Compiler = () =>
-	compilerWrap('[favicon]: moving all files', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(IMAGES_FAVICON)
-				.pipe(gulp.dest(BUILD_FAVICON_DIR))
-				.pipe(server.reload({ stream: true }))
-		if (NODE_ENV === 'production')
-			return gulp.src(IMAGES_FAVICON).pipe(gulp.dest(BUILD_FAVICON_DIR))
-	})
+	if (NODE_ENV === 'production')
+		return gulp
+			.src(input)
+			.pipe(
+				webp({
+					quality: 60,
+				})
+			)
+			.pipe(gulp.dest(BUILD_DIR))
+}
 
-export default taskWrap('[task]: run images services', (done: any) => {
+const faviconCompiler: types.Compiler = (input: string | string[]) => () => {
+	if (NODE_ENV === 'development')
+		return gulp
+			.src(input)
+			.pipe(gulp.dest(BUILD_FAVICON_DIR))
+			.pipe(server.reload({ stream: true }))
+
+	if (NODE_ENV === 'production')
+		return gulp.src(input).pipe(gulp.dest(BUILD_FAVICON_DIR))
+}
+
+export default setDisplayName(taskName, (done: any) => {
+	const fn = setDisplayName(taskCompilerImages, imagesCompiler(SRC_IMAGES))
+	const fnWebp = setDisplayName(taskCompilerWebp, webpCompiler(SRC_IMAGES_WEBP))
+	const fnFavicon = setDisplayName(
+		taskCompilerFavicon,
+		faviconCompiler(SRC_IMAGES_FAVICON)
+	)
+
 	if (NODE_ENV === 'production') {
-		gulp.series(imagesCompiler(), webpCompiler(), faviconCompiler())(done)
+		gulp.series(fn, fnWebp, fnFavicon)(done)
 		return
 	}
 
 	gulp.watch(
-		[IMAGES_FILES, `!${IMAGES_FAVICON}`],
+		SRC_IMAGES,
 		{
 			ignoreInitial: false,
 		},
-		imagesCompiler()
+		fn
 	)
 
 	gulp.watch(
-		[IMAGES_WEBP_FILES, `!${IMAGES_FAVICON}`],
+		SRC_IMAGES_WEBP,
 		{
 			ignoreInitial: false,
 		},
-		webpCompiler()
+		fnWebp
 	)
 
 	gulp.watch(
-		[IMAGES_FAVICON],
+		SRC_IMAGES_FAVICON,
 		{
 			ignoreInitial: false,
 		},
-		faviconCompiler()
+		fnFavicon
 	)
 })

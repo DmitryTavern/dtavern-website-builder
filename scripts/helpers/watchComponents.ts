@@ -2,8 +2,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as gulp from 'gulp'
 import * as types from '../types'
+import { setDisplayName } from './setDisplayName'
+import { warn, __ } from './logger'
 import { mkdir } from './mkdir'
-import { warn } from './logger'
 import {
 	getComponentNamespace,
 	getNamespacePathes,
@@ -25,40 +26,49 @@ export default (files: string, compilers: Compilers) => {
 			ignored: /(^|[\/\\])\../,
 		})
 		.on('change', (file: string) => {
+			const fileExt = path.extname(file).replace('.', '')
 			const fileName = path.basename(path.dirname(file))
 			const fileCategory = path.basename(path.dirname(path.dirname(file)))
-			const fileExt = path.extname(file).replace('.', '')
-			const namespace = getComponentNamespace(`${fileCategory}/${fileName}`)
+			const component = `${fileCategory}/${fileName}`
+			const namespace = getComponentNamespace(component)
 
 			if (namespace === 'global') {
 				compilers.global(null)
 			} else if (namespace !== 'none') {
 				const pathes = getNamespacePathes(namespace)
-				let compiler = null
+				let path: string, type: string
 
-				if (fileExt === 'pug' && pathes.pugFileExists)
-					compiler = compilers.page(
-						pathes.pugPath,
-						`[pug]: compiling '${namespace}' page`
-					)
+				if (fileExt === 'pug' && pathes.pugFileExists) {
+					path = pathes.pugPath
+					type = 'html'
+				}
 
-				if (fileExt === 'scss' && pathes.scssFileExists)
-					compiler = compilers.page(
-						pathes.scssPath,
-						`[scss]: compiling '${namespace}' page`
-					)
+				if (fileExt === 'scss' && pathes.scssFileExists) {
+					path = pathes.scssPath
+					type = 'style'
+				}
 
-				if (fileExt === 'js' && pathes.jsFileExists)
-					compiler = compilers.page(
-						pathes.jsPath,
-						`[js]: compiling '${namespace}' page`
-					)
+				if (fileExt === 'js' && pathes.jsFileExists) {
+					path = pathes.jsPath
+					type = 'script'
+				}
 
-				if (compiler) {
-					gulp.series(compiler)(null)
+				if (path) {
+					gulp.series(
+						setDisplayName(
+							__('TASK_COMPILER_COMPONENT', {
+								name: component,
+								type,
+								namespace,
+							}),
+							compilers.page(path)
+						)
+					)(null)
 				} else {
 					warn(
-						`[componentWatcher]: Not found file ext '${fileExt}' or component imports to not exist page assets`
+						__('WARN_COMPILER_COMPONENTDIR', {
+							ext: fileExt,
+						})
 					)
 				}
 			}

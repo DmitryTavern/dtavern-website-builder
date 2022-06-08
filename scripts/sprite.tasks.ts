@@ -4,8 +4,8 @@ import * as server from 'browser-sync'
 import * as svgSprite from 'gulp-svg-sprite'
 import * as types from './types'
 
-import taskWrap from './helpers/taskWrap'
-import compilerWrap from './helpers/compilerWrap'
+import { setDisplayName } from './helpers/setDisplayName'
+import { __ } from './helpers/logger'
 
 const {
 	NODE_ENV,
@@ -15,29 +15,32 @@ const {
 	APP_SPRITE_FILENAME,
 } = process.env
 
+const taskName = __('TASK_SPRITE')
+const taskCompiler = __('TASK_COMPILER_SPRITE')
 const SPRITE_ICONS = path.join(APP_ASSETS_SPRITE_DIR, '/*.svg')
 const BUILD_DIR = path.join(APP_BUILD_DIRNAME, APP_BUILD_IMAGES_DIRNAME)
 
-const compiler: types.Compiler = (input: string) =>
-	compilerWrap('[svg]: compiling all icons', () => {
-		return gulp
-			.src(SPRITE_ICONS)
-			.pipe(
-				svgSprite({
-					mode: {
-						stack: {
-							sprite: '../' + APP_SPRITE_FILENAME,
-						},
+const compiler: types.Compiler = (input: string) => () => {
+	return gulp
+		.src(input)
+		.pipe(
+			svgSprite({
+				mode: {
+					stack: {
+						sprite: '../' + APP_SPRITE_FILENAME,
 					},
-				})
-			)
-			.pipe(gulp.dest(BUILD_DIR))
-			.pipe(server.reload({ stream: true }))
-	})
+				},
+			})
+		)
+		.pipe(gulp.dest(BUILD_DIR))
+		.pipe(server.reload({ stream: true }))
+}
 
-export default taskWrap('[task]: run sprite service', (done: any) => {
+export default setDisplayName(taskName, (done: any) => {
+	const fn = setDisplayName(taskCompiler, compiler(SPRITE_ICONS))
+
 	if (NODE_ENV === 'production') {
-		compiler(done)
+		gulp.series(fn)(done)
 		return
 	}
 
@@ -46,7 +49,6 @@ export default taskWrap('[task]: run sprite service', (done: any) => {
 		{
 			ignoreInitial: false,
 		},
-		compiler()
+		fn
 	)
-}
-)
+})

@@ -1,9 +1,12 @@
-import taskWrap from './helpers/taskWrap'
+import { setDisplayName } from './helpers/setDisplayName'
 import { rmdir } from './helpers/rmdir'
+import { __ } from './helpers/logger'
 
 const { APP_BUILD_DIRNAME } = process.env
 
-export default taskWrap('[task]: clean folders', (done: any) => {
+const taskName = __('TASK_CLEAN')
+
+export default setDisplayName(taskName, (done: any) => {
 	rmdir(APP_BUILD_DIRNAME)
 	return done()
 })

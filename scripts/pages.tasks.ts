@@ -6,10 +6,10 @@ import * as rename from 'gulp-rename'
 import * as prettyHtml from 'gulp-html-prettify'
 import * as types from './types'
 
-import taskWrap from './helpers/taskWrap'
-import compilerWrap from './helpers/compilerWrap'
 import watchViews from './helpers/watchViews'
 import watchComponents from './helpers/watchComponents'
+import { setDisplayName } from './helpers/setDisplayName'
+import { __ } from './helpers/logger'
 
 const {
 	NODE_ENV,
@@ -26,34 +26,44 @@ const PAGES_PUG = path.join(APP_PAGES_DIR, '/*.pug')
 const PAGES_ALL_PUG = path.join(APP_PAGES_DIR, '/**/*.pug')
 const COMPONENTS_PUG = path.join(APP_COMPONENTS_DIR, '/**/*.pug')
 
-const compiler: types.Compiler = (input: string, msg: string) =>
-	compilerWrap(msg ? msg : '[pug]: compiling all pages', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(input)
-				.pipe(pug())
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(server.stream())
+const compiler: types.Compiler = (input: string) => () => {
+	if (NODE_ENV === 'development')
+		return gulp
+			.src(input)
+			.pipe(pug())
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_DIR))
+			.pipe(server.stream())
 
-		if (NODE_ENV === 'production')
-			return gulp
-				.src(input)
-				.pipe(pug())
-				.pipe(prettyHtml({ indent_char: ' ', indent_size: 2 }))
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-	})
+	if (NODE_ENV === 'production')
+		return gulp
+			.src(input)
+			.pipe(pug())
+			.pipe(prettyHtml({ indent_char: ' ', indent_size: 2 }))
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_DIR))
+}
 
-export default taskWrap('[task]: run pages services', (done: any) => {
-	if (NODE_ENV === 'production') return gulp.series(compiler(PAGES_PUG))(done)
+const taskName = __('TASK_HTML')
+const taskCompilerGlobal = __('TASK_COMPILER_PAGE', {
+	type: 'html',
+	namespace: 'all',
+})
+
+export default setDisplayName(taskName, (done: any) => {
+	const fn = setDisplayName(taskCompilerGlobal, compiler(PAGES_PUG))
+
+	if (NODE_ENV === 'production') {
+		gulp.series(fn)(done)
+		return
+	}
 
 	watchViews(APP_PAGES_DIR, compiler)
 
 	watchComponents(COMPONENTS_PUG, {
-		global: gulp.series(compiler(PAGES_PUG)),
+		global: fn,
 		page: compiler,
 	})
 
-	gulp.watch([VIEWS_PUG, `!${PAGES_ALL_PUG}`], compiler(PAGES_PUG))
+	gulp.watch([VIEWS_PUG, `!${PAGES_ALL_PUG}`], fn)
 })

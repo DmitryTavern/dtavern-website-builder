@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { log } from './logger'
+import { __, log } from './logger'
 
 export function rmdir(path: string) {
 	if (fs.existsSync(path)) {
@@ -7,6 +7,10 @@ export function rmdir(path: string) {
 			force: true,
 			recursive: true,
 		})
-		log('removed directory: ' + path)
+		log(
+			__('LOG_REMOVE_DIR', {
+				dir: path,
+			})
+		)
 	}
 }
