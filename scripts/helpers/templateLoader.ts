@@ -14,7 +14,7 @@ function loadTemplate(name: string) {
 	let template = fs.readFileSync(templatePath, 'utf-8')
 
 	const actions = {
-		replace: (regex: string, content: string) => {
+		replace: (regex: RegExp | string, content: string) => {
 			template = template.replace(regex, `${content}`)
 			return actions
 		},
