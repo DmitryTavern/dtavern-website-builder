@@ -9,24 +9,30 @@ import { setDisplayName } from './helpers/setDisplayName'
 import { isDev, isProd } from './helpers/mode'
 import { __ } from './helpers/logger'
 
-const { APP_ASSETS_IMAGES_DIR, APP_BUILD_DIRNAME, APP_BUILD_IMAGES_DIRNAME } =
-	process.env
+const {
+	APP_ASSETS_IMAGES_DIR,
+	APP_ASSETD_FAVICON_DIR,
+	APP_BUILD_FAVICON_DIRNAME,
+	APP_BUILD_DIRNAME,
+	APP_BUILD_IMAGES_DIRNAME,
+} = process.env
 
 const taskName = __('TASK_IMAGES')
 const taskCompilerImages = __('TASK_COMPILER_IMAGES')
 const taskCompilerWebp = __('TASK_COMPILER_IMAGES_WEBP')
 const taskCompilerFavicon = __('TASK_COMPILER_IMAGES_FAVICON')
+
 const IMAGES_FILES = path.join(APP_ASSETS_IMAGES_DIR, '/**/*.*')
-const IMAGES_FAVICON = path.join(APP_ASSETS_IMAGES_DIR, 'favicon/**.*')
+const IMAGES_FAVICON = path.join(APP_ASSETD_FAVICON_DIR, '**.*')
 const IMAGES_WEBP_FILES = path.join(
 	APP_ASSETS_IMAGES_DIR,
 	'/**/*.+(png|jpg|jpeg)'
 )
+
 const BUILD_DIR = path.join(APP_BUILD_DIRNAME, APP_BUILD_IMAGES_DIRNAME)
 const BUILD_FAVICON_DIR = path.join(
 	APP_BUILD_DIRNAME,
-	APP_BUILD_IMAGES_DIRNAME,
-	'favicon'
+	APP_BUILD_FAVICON_DIRNAME
 )
 
 const SRC_IMAGES = [IMAGES_FILES, `!${IMAGES_FAVICON}`]
