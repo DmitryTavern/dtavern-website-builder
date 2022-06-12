@@ -4,6 +4,8 @@ import * as pug from 'gulp-pug'
 import * as server from 'browser-sync'
 import * as rename from 'gulp-rename'
 import * as prettyHtml from 'gulp-html-prettify'
+import * as plumber from 'gulp-plumber'
+import * as notify from 'gulp-notify'
 import * as types from './types'
 
 import watchViews from './helpers/watchViews'
@@ -30,6 +32,7 @@ const compiler: types.Compiler = (input: string) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
+			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
 			.pipe(pug())
 			.pipe(rename({ dirname: '' }))
 			.pipe(gulp.dest(BUILD_DIR))

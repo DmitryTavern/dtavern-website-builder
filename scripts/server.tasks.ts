@@ -25,6 +25,7 @@ export default setDisplayName(taskName, (done: any) => {
 			baseDir: APP_BUILD_DIRNAME,
 		},
 		notify: false,
+		open: false,
 	})
 
 	browserSync.watch(APP_BUILD_DIRNAME).on('change', browserSync.reload)

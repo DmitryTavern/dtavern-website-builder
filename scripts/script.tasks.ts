@@ -40,38 +40,42 @@ const BUILD_VENDOR_DIR = path.join(
 )
 
 const rollupCompiler = async (input: string) => {
-	const files = glob.sync(input)
+	try {
+		const files = glob.sync(input)
 
-	for (const file of files) {
-		const name = path.basename(file)
+		for (const file of files) {
+			const name = path.basename(file)
 
-		const outputsList: any[] = [
-			{
-				file: path.join(BUILD_DIR, name),
-				format: 'cjs',
-			},
-		]
+			const outputsList: any[] = [
+				{
+					file: path.join(BUILD_DIR, name),
+					format: 'cjs',
+				},
+			]
 
-		if (isProd()) {
-			outputsList.push({
-				file: path.join(BUILD_DIR, name.replace('.js', '.min.js')),
-				plugins: [terser.terser()],
-				format: 'cjs',
-			})
-		}
+			if (isProd()) {
+				outputsList.push({
+					file: path.join(BUILD_DIR, name.replace('.js', '.min.js')),
+					plugins: [terser.terser()],
+					format: 'cjs',
+				})
+			}
 
-		const bundle = await rollup.rollup({ input: file })
+			const bundle = await rollup.rollup({ input: file })
 
-		for (const options of outputsList) {
-			const { output } = await bundle.generate(options)
+			for (const options of outputsList) {
+				const { output } = await bundle.generate(options)
 
-			for (const chunk of output) {
-				if (chunk.type === 'chunk') {
-					mkdir(BUILD_DIR)
-					fs.writeFileSync(path.join(BUILD_DIR, chunk.fileName), chunk.code)
+				for (const chunk of output) {
+					if (chunk.type === 'chunk') {
+						mkdir(BUILD_DIR)
+						fs.writeFileSync(path.join(BUILD_DIR, chunk.fileName), chunk.code)
+					}
 				}
 			}
 		}
+	} catch (e) {
+		console.error(e)
 	}
 }
 

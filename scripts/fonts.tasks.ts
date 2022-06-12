@@ -1,6 +1,8 @@
 import * as path from 'path'
 import * as gulp from 'gulp'
 import * as server from 'browser-sync'
+import * as plumber from 'gulp-plumber'
+import * as notify from 'gulp-notify'
 import * as types from './types'
 
 import { setDisplayName } from './helpers/setDisplayName'
@@ -19,6 +21,7 @@ const compiler: types.Compiler = (input: string) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
+			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.reload({ stream: true }))
 

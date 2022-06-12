@@ -7,6 +7,8 @@ import * as gcmq from 'gulp-group-css-media-queries'
 import * as rename from 'gulp-rename'
 import * as cssnano from 'gulp-cssnano'
 import * as autoprefixer from 'gulp-autoprefixer'
+import * as plumber from 'gulp-plumber'
+import * as notify from 'gulp-notify'
 import * as types from './types'
 
 import watchViews from './helpers/watchViews'
@@ -35,7 +37,8 @@ const compiler: types.Compiler = (input: string) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
-			.pipe(sassGulp().on('error', sassGulp.logError))
+			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
+			.pipe(sassGulp())
 			.pipe(gcmq())
 			.pipe(rename({ dirname: '' }))
 			.pipe(gulp.dest(BUILD_DIR))

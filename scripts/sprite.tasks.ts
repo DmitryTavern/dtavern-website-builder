@@ -2,6 +2,8 @@ import * as path from 'path'
 import * as gulp from 'gulp'
 import * as server from 'browser-sync'
 import * as svgSprite from 'gulp-svg-sprite'
+import * as plumber from 'gulp-plumber'
+import * as notify from 'gulp-notify'
 import * as types from './types'
 
 import { setDisplayName } from './helpers/setDisplayName'
@@ -23,6 +25,7 @@ const BUILD_DIR = path.join(APP_BUILD_DIRNAME, APP_BUILD_IMAGES_DIRNAME)
 const compiler: types.Compiler = (input: string) => () => {
 	return gulp
 		.src(input)
+		.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
 		.pipe(
 			svgSprite({
 				mode: {

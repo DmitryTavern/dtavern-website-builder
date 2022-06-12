@@ -3,6 +3,8 @@ import * as gulp from 'gulp'
 import * as server from 'browser-sync'
 import * as webp from 'gulp-webp'
 import * as image from 'gulp-image'
+import * as plumber from 'gulp-plumber'
+import * as notify from 'gulp-notify'
 import * as types from './types'
 
 import { setDisplayName } from './helpers/setDisplayName'
@@ -43,6 +45,7 @@ const imagesCompiler: types.Compiler = (input: string | string[]) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
+			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.reload({ stream: true }))
 
@@ -61,6 +64,7 @@ const webpCompiler: types.Compiler = (input: string | string[]) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
+			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
 			.pipe(webp())
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.reload({ stream: true }))
@@ -80,6 +84,7 @@ const faviconCompiler: types.Compiler = (input: string | string[]) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
+			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
 			.pipe(gulp.dest(BUILD_FAVICON_DIR))
 			.pipe(server.reload({ stream: true }))
 
