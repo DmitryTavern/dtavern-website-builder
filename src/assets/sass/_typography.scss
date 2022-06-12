@@ -1,9 +1,17 @@
 @font-face {
-  font-family: "Roboto";
-  src: local("Roboto Regular"), url("../fonts/Roboto/Roboto-Regular.ttf");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+	font-family: 'Roboto';
+	src: local('Roboto Regular'), url('../fonts/Roboto/Roboto-Regular.ttf');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-uppercase {
+	text-transform: uppercase;
 }
 
 b,
