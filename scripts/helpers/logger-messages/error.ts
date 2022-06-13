@@ -6,6 +6,7 @@ export default {
 		message: '${file} file already exitst. Use -f for force creating',
 		payload: { file: '' },
 	},
+	ERROR_INVALID_NAME: 'This name is invalid. Use other',
 
 	// Components
 	ERROR_COMPONENT_EXISTS: {

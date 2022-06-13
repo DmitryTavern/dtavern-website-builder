@@ -2,7 +2,7 @@ import { program } from 'commander'
 import { __, error } from '../helpers/logger'
 import { renamePage } from '../pages-utils'
 import { inquirerWrap } from '../helpers/inquirerWrap'
-import { getPageList, existsPage } from '../component-utils'
+import { getPageList, existsPage, checkPageName } from '../component-utils'
 
 interface RenamePageAnswers {
 	oldName: string
@@ -24,6 +24,10 @@ program
 	.action(() =>
 		inquirerWrap(renamePageQuestions, (answers: RenamePageAnswers) => {
 			const { oldName, newName } = answers
+
+			if (!checkPageName(newName)) {
+				return error(__('ERROR_INVALID_NAME'))
+			}
 
 			if (existsPage(newName)) {
 				return error(__('ERROR_NAME_TAKEN', { name: newName }))

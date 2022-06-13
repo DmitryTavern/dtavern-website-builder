@@ -33,6 +33,9 @@ const defaultPathes = {
 	jsFileExists: false,
 }
 
+const invalidNameValues = ['', 'global', 'none', 'common']
+const invalidComponentNames = ['', 'components']
+
 export function getComponentsStore() {
 	if (!fs.existsSync(APP_PROJECT_STORE)) return []
 	return fs
@@ -137,4 +140,12 @@ export function existsComponentByCategory(category: string, name: string) {
 	}
 
 	return false
+}
+
+export function checkComponentName(name: string) {
+	return !invalidComponentNames.includes(name)
+}
+
+export function checkPageName(name: string) {
+	return !invalidNameValues.includes(name)
 }

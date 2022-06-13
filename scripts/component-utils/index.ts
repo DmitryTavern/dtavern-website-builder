@@ -14,4 +14,6 @@ export {
 	getComponentsStore,
 	getPageList,
 	existsPage,
+	checkComponentName,
+	checkPageName,
 } from './utils'

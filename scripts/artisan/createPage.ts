@@ -1,7 +1,7 @@
 import { program } from 'commander'
 import { __, error } from '../helpers/logger'
 import { inquirerWrap } from '../helpers/inquirerWrap'
-import { getNamespacePathes } from '../component-utils'
+import { getNamespacePathes, checkPageName } from '../component-utils'
 import { createPage, includePageScript, includePageStyle } from '../pages-utils'
 
 interface CreatePageAnswers {
@@ -23,6 +23,10 @@ program
 		inquirerWrap(createPageQuestions, (answers: CreatePageAnswers) => {
 			const { name, scss, js } = answers
 			const pathes = getNamespacePathes(name)
+
+			if (!checkPageName(name)) {
+				return error(__('ERROR_INVALID_NAME'))
+			}
 
 			if (!options.f && pathes.pugFileExists) {
 				return error(__('ERROR_PAGE_FILE_EXISTS', { file: 'Pug' }))

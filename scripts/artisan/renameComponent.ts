@@ -9,6 +9,7 @@ import {
 	getComponentInfo,
 	getComponentNamespace,
 	existsComponentByCategory,
+	checkComponentName,
 } from '../component-utils'
 
 interface RenameComponentAnswers {
@@ -39,6 +40,10 @@ program
 				const { oldName, newName } = answers
 				const { category } = getComponentInfo(oldName)
 				const namespace = getComponentNamespace(oldName)
+
+				if (!checkComponentName(newName)) {
+					return error(__('ERROR_INVALID_NAME'))
+				}
 
 				if (existsComponentByCategory(category, newName)) {
 					error(__('ERROR_NAME_TAKEN', { name: newName }))

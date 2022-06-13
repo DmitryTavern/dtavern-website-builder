@@ -11,6 +11,7 @@ import {
 	getPageList,
 	registerComponent,
 	reinjectComponents,
+	checkComponentName,
 } from '../component-utils'
 
 interface CreateComponentAnswers {
@@ -70,6 +71,10 @@ program
 				const categoryDirPath = path.join(componentsDirPath, category)
 				const targetDirPath = path.join(categoryDirPath, name)
 				const targetPath = path.join(targetDirPath, name)
+
+				if (!checkComponentName(name)) {
+					return error(__('ERROR_INVALID_NAME'))
+				}
 
 				if (!options.f && fs.existsSync(targetDirPath)) {
 					return error(
