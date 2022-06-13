@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as inquirer from 'inquirer'
 import { mkdir } from '../helpers/mkdir'
 import { program } from 'commander'
 import { autoimport } from '../helpers/mode'
@@ -7,7 +8,7 @@ import { inquirerWrap } from '../helpers/inquirerWrap'
 import { __, log, error } from '../helpers/logger'
 import { templateLoader } from '../helpers/templateLoader'
 import {
-	getNamespaceList,
+	getPageList,
 	registerComponent,
 	reinjectComponents,
 } from '../component-utils'
@@ -29,8 +30,13 @@ const {
 	ARTISAN_COMPONENT_CATEGORIES,
 } = process.env
 
-const allNamespaces = getNamespaceList()
-const allCategories = ARTISAN_COMPONENT_CATEGORIES.split(',')
+const namespaceChoices = ['global', 'none']
+const namespaces = getPageList()
+if (namespaces.length > 0) {
+	namespaceChoices.push(new inquirer.Separator())
+	namespaceChoices.push(...namespaces)
+}
+
 const createComponentQuestions = [
 	{ type: 'input', name: 'name', message: 'Component name:' },
 	{ type: 'confirm', name: 'pug', message: 'Create pug file?' },
@@ -40,13 +46,13 @@ const createComponentQuestions = [
 		type: 'list',
 		name: 'category',
 		message: 'Select component category:',
-		choices: allCategories,
+		choices: ARTISAN_COMPONENT_CATEGORIES.split(','),
 	},
 	{
 		type: 'list',
 		name: 'namespace',
 		message: 'Where to connect this component?',
-		choices: allNamespaces,
+		choices: namespaceChoices,
 	},
 ]
 
