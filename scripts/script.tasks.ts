@@ -123,7 +123,7 @@ export default setDisplayName(taskName, (done: any) => {
 	watchViews(APP_PAGES_SCRIPTS_DIR, compiler)
 
 	watchComponents(COMPONENTS_JS, {
-		global: fnPages,
+		global: fn,
 		page: compiler,
 	})
 

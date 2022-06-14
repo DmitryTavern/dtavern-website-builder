@@ -33,7 +33,7 @@ export default (files: string, compilers: Compilers) => {
 			const namespace = getComponentNamespace(component)
 
 			if (namespace === 'global') {
-				compilers.global(null)
+				gulp.series(compilers.global)(null)
 			} else if (namespace !== 'none') {
 				const pathes = getNamespacePathes(namespace)
 				let path: string, type: string
