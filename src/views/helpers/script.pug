@@ -1,5 +1,5 @@
 mixin scriptVendor(url='')
-	script(src=process.env.APP_BUILD_SCRIPTS_VENDOR_DIRNAME + '/' + url)
+	script(src=process.env.APP_BUILD_SCRIPTS_VENDOR_DIRNAME + '/' + url, defer)
 
 mixin script(url='')
 	-
@@ -8,4 +8,4 @@ mixin script(url='')
 			? url.replace('.js', '.min.js')
 			: url
 
-	script(src=process.env.APP_BUILD_SCRIPTS_DIRNAME + '/' + name)
+	script(src=process.env.APP_BUILD_SCRIPTS_DIRNAME + '/' + name, defer)

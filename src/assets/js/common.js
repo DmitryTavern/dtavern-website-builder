@@ -1,5 +1,11 @@
+import './parts/delegate'
 import './parts/global'
 
-document.addEventListener('DOMContentLoaded', function () {
-	console.log('Hello Jack!')
-})
+/**
+ *	Common script
+ *	-------------
+ **/
+
+function initCommonScript() {}
+
+document.addEventListener('DOMContentLoaded', initCommonScript)

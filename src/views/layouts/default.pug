@@ -1,8 +1,8 @@
-include ../helpers/head
-include ../helpers/style
-include ../helpers/font
-include ../helpers/script
 include ../helpers/img
+include ../helpers/head
+include ../helpers/font
+include ../helpers/style
+include ../helpers/script
 include ../helpers/global
 
 doctype html
@@ -16,10 +16,10 @@ html(lang='en')
 
 		+style('style.css')
 
+		+font('Roboto/Roboto-Regular.ttf')
+
 		block head
 			title Title
-
-		+font('Roboto/Roboto-Regular.ttf')
 
 	body 
 		block header
@@ -30,6 +30,8 @@ html(lang='en')
 		block footer
 
 		+scriptVendor('jquery.min.js')
+		//- @-auto-import
+
 		+script('common.js')
 
 		block script

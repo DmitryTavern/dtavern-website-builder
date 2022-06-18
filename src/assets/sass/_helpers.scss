@@ -1,91 +1,182 @@
 // Media: Mobile
-
-@mixin media-xs-max() {
-	@media (max-width: $grid-breakpoint-xs) {
-		@content;
-	}
-}
-
 @mixin media-xs() {
-	@media (min-width: $grid-breakpoint-xs + 1px) {
+	@media only screen and (min-width: $grid-breakpoint-xs) {
 		@content;
 	}
 }
-
+@mixin media-xs-max() {
+	@media only screen and (max-width: #{$grid-breakpoint-xs - 1px}) {
+		@content;
+	}
+}
 @mixin media-xs-landscape() {
-	@media (max-width: $grid-breakpoint-xs) and (orientation: landscape) {
+	@media only screen and (max-width: #{$grid-breakpoint-xs - 1px}) and (orientation: landscape) {
 		@content;
 	}
 }
 
 // Media: Max
-
 @mixin media-sm-max() {
-	@media (max-width: #{$grid-breakpoint-sm - 1px}) {
+	@media only screen and (max-width: #{$grid-breakpoint-sm - 1px}) {
 		@content;
 	}
 }
-
 @mixin media-md-max() {
-	@media (max-width: #{$grid-breakpoint-md - 1px}) {
+	@media only screen and (max-width: #{$grid-breakpoint-md - 1px}) {
 		@content;
 	}
 }
 @mixin media-lg-max() {
-	@media (max-width: #{$grid-breakpoint-lg - 1px}) {
+	@media only screen and (max-width: #{$grid-breakpoint-lg - 1px}) {
 		@content;
 	}
 }
 @mixin media-xl-max() {
-	@media (max-width: #{$grid-breakpoint-xl - 1px}) {
+	@media only screen and (max-width: #{$grid-breakpoint-xl - 1px}) {
 		@content;
 	}
 }
-
 @mixin media-xx-max() {
-	@media (max-width: #{$grid-breakpoint-xx - 1px}) {
+	@media only screen and (max-width: #{$grid-breakpoint-xx - 1px}) {
 		@content;
 	}
 }
 
 // Media: Min
-
 @mixin media-sm() {
-	@media (min-width: $grid-breakpoint-sm) {
+	@media only screen and (min-width: $grid-breakpoint-sm) {
 		@content;
 	}
 }
 
 @mixin media-md() {
-	@media (min-width: $grid-breakpoint-md) {
+	@media only screen and (min-width: $grid-breakpoint-md) {
 		@content;
 	}
 }
-
 @mixin media-lg() {
-	@media (min-width: $grid-breakpoint-lg) {
+	@media only screen and (min-width: $grid-breakpoint-lg) {
 		@content;
 	}
 }
 @mixin media-xl() {
-	@media (min-width: $grid-breakpoint-xl) {
+	@media only screen and (min-width: $grid-breakpoint-xl) {
 		@content;
 	}
 }
 @mixin media-xx() {
-	@media (min-width: $grid-breakpoint-xx) {
+	@media only screen and (min-width: $grid-breakpoint-xx) {
 		@content;
 	}
 }
 
 // Visible
-
 @mixin visibility-hidden {
 	visibility: hidden;
 	opacity: 0;
 }
-
 @mixin visibility-visible {
 	visibility: visible;
 	opacity: 1;
+}
+
+// Psevdo
+@mixin pseudo($display: block, $pos: absolute, $content: '') {
+	content: $content;
+	display: $display;
+	position: $pos;
+}
+
+//	Retina images
+//	example:
+//	.element {
+//		@include retina {
+//			background-image: url(../img/background@2x.png);
+//		}
+//  }
+@mixin retina {
+	@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+		only screen and (-moz-min-device-pixel-ratio: 1.5),
+		only screen and (-o-min-device-pixel-ratio: 3 / 2),
+		only screen and (min-device-pixel-ratio: 1.5),
+		only screen and (min-resolution: 1.5dppx) {
+		@content;
+	}
+}
+
+//	CSS Triangle
+//	used for creating CSS only triangles
+//	example:
+//	.element {
+//		&::before {
+//			@include css-triangle(blue, down);
+//		}
+//	}
+@mixin css-triangle(
+	$color,
+	$direction,
+	$size: 6px,
+	$position: absolute,
+	$round: false
+) {
+	@include pseudo($pos: $position);
+	width: 0;
+	height: 0;
+
+	@if $round {
+		border-radius: 3px;
+	}
+	@if $direction == down {
+		border-left: $size solid transparent;
+		border-right: $size solid transparent;
+		border-top: $size solid $color;
+		margin-top: 0 - round($size / 2.5);
+	} @else if $direction == up {
+		border-left: $size solid transparent;
+		border-right: $size solid transparent;
+		border-bottom: $size solid $color;
+		margin-bottom: 0 - round($size / 2.5);
+	} @else if $direction == right {
+		border-top: $size solid transparent;
+		border-bottom: $size solid transparent;
+		border-left: $size solid $color;
+		margin-right: -$size;
+	} @else if $direction == left {
+		border-top: $size solid transparent;
+		border-bottom: $size solid transparent;
+		border-right: $size solid $color;
+		margin-left: -$size;
+	}
+}
+
+// Appearance
+@mixin appearance($val: none) {
+	-webkit-appearance: $val;
+	-moz-appearance: $val;
+	appearance: $val;
+}
+
+// Font
+@mixin font-face($name, $file, $font-weight: normal, $font-style: normal) {
+	@font-face {
+		font-family: '#{$name}';
+		src: url('#{$font-build-path}#{$file}.eot');
+		src: url('#{$font-build-path}#{$file}.eot?#iefix')
+				format('embedded-opentype'),
+			url('#{$font-build-path}#{$file}.woff') format('woff'),
+			url('#{$font-build-path}#{$file}.ttf') format('truetype'),
+			url('#{$font-build-path}#{$file}.svg?#webfont') format('svg');
+		font-weight: $font-weight;
+		font-style: $font-style;
+		font-display: swap;
+	}
+}
+
+// Position
+@mixin abs-position($top, $right, $bottom, $left) {
+	position: absolute;
+	top: $top;
+	right: $right;
+	bottom: $bottom;
+	left: $left;
 }

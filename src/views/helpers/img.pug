@@ -1,5 +1,7 @@
-mixin img({ src, classes, alt, width, height })
+mixin img({ src, classes, alt, width, height, attrs })
 	picture
+		block
+
 		source(
 			srcset=process.env.APP_BUILD_IMAGES_DIRNAME + '/' + src + '.webp',
 			type='image/webp'
@@ -10,10 +12,19 @@ mixin img({ src, classes, alt, width, height })
 			alt=alt,
 			width=width,
 			height=height
-		)
+		)&attributes(attrs)
 
-mixin svg(icon, classes)
-	svg(class=classes)
+mixin svg({ src, classes, alt, width, height, attrs })
+	img(
+		src=process.env.APP_BUILD_IMAGES_DIRNAME + '/' + src + '.png',
+		class=classes,
+		alt=alt,
+		width=width,
+		height=height
+	)&attributes(attrs)
+
+mixin sprite({ ico, classes, attrs })
+	svg(class=classes)&attributes(attrs)
 		use(
-			xlink:href=process.env.APP_BUILD_IMAGES_DIRNAME + '/' + process.env.APP_SPRITE_FILENAME + '#' + icon
+			xlink:href=process.env.APP_BUILD_IMAGES_DIRNAME + '/' + process.env.APP_SPRITE_FILENAME + '#' + ico
 		)
