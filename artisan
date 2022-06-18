@@ -4,15 +4,14 @@ const { program } = require('commander')
 
 program.name('artisan')
 
-// Pages commands
-require('./scripts/artisan/createPage')
-require('./scripts/artisan/renamePage')
+// Page commands
+require('./scripts/artisan/pages/create')
+require('./scripts/artisan/pages/rename')
 
-// Components commands
-require('./scripts/artisan/createComponent')
-require('./scripts/artisan/renameComponent')
-require('./scripts/artisan/removeComponent')
-require('./scripts/artisan/reinjectComponents')
-require('./scripts/artisan/importComponents')
+// Component commands
+require('./scripts/artisan/components/create')
+require('./scripts/artisan/components/rename')
+require('./scripts/artisan/components/reinject')
+require('./scripts/artisan/components/remove')
 
 program.parse()
