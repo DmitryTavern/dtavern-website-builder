@@ -28,4 +28,7 @@ export default {
 			'Rename function marge existing directory: "${pageDir}" with "${dir}"',
 		payload: { pageDir: '', dir: '' },
 	},
+
+	// Store
+	WARN_STORE_EXISTS: 'Store folder already exists',
 }

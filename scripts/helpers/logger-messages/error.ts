@@ -19,6 +19,14 @@ export default {
 			'Component is not correct: "${component}". Need: "{category}/{name}"',
 		payload: { component: '' },
 	},
+	ERROR_COMPONENT_CONFIG_NOT_FOUND: {
+		message: 'Component "${component}" have not config file',
+		payload: { component: '' },
+	},
+	ERROR_COMPONENT_CONFIG_HAVE_NOT_PARAM: {
+		message: 'Component "${component}" have not "${param}" in config file',
+		payload: { component: '', param: '' },
+	},
 
 	ERROR_NAME_TAKEN: {
 		message: 'New name "${name}" is already taken. Please, use other name',
@@ -28,4 +36,7 @@ export default {
 		message: 'Template "${name}" in template loader not found',
 		payload: { name: '' },
 	},
+
+	// Store
+	ERROR_STORE_NOT_EXISTS: 'Store not exists',
 }

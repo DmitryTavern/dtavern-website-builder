@@ -67,4 +67,8 @@ export default {
 	// Components config
 	LOG_COMPONENTS_CONFIG_INTEGRITY:
 		'Components config integrity check found components without namesapce. They are added to "none" namespace',
+
+	// Store
+	LOG_STORE_INSTALLED: 'Store success installed',
+	LOG_STORE_UPDATED: 'Store success updated',
 }

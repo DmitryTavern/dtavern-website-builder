@@ -15,3 +15,7 @@ export interface RenameComponentAnswers {
 export interface RemoveComponentAnswers {
 	components: string[]
 }
+
+export interface ImportComponentsAnswers {
+	components: string[]
+}

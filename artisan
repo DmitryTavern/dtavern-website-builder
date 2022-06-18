@@ -9,9 +9,14 @@ require('./scripts/artisan/pages/create')
 require('./scripts/artisan/pages/rename')
 
 // Component commands
+require('./scripts/artisan/components/import')
 require('./scripts/artisan/components/create')
 require('./scripts/artisan/components/rename')
 require('./scripts/artisan/components/reinject')
 require('./scripts/artisan/components/remove')
+
+// Store
+require('./scripts/artisan/store/install')
+require('./scripts/artisan/store/update')
 
 program.parse()
