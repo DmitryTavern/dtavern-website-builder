@@ -31,4 +31,7 @@ export default {
 
 	// Store
 	WARN_STORE_EXISTS: 'Store folder already exists',
+
+	WARN_TITLE_OR_HEAD_BLOCK_NOT_EXISTS:
+		'[page/utils]: cannot autoinclude style. Not found head or title',
 }

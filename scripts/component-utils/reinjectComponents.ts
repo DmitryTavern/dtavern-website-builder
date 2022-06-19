@@ -1,14 +1,22 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { readConfig } from './componentsConfig'
 import { __, log, warn } from '../helpers/logger'
+import { rmdir } from '../helpers/rmdir'
 import { createPage, includePageScript, includePageStyle } from '../pages-utils'
+import { readConfig } from './componentsConfig'
 import {
 	getNamespaceList,
 	getNamespacePathes,
 	getNamespaceComponents,
 	getComponentPathes,
+	getComponentInfo,
+	getFileInfo,
 } from './utils'
+
+const {
+	ARTISAN_COMPONENT_AUTOIMPORT_SCSS_VAR_PATH,
+	APP_ASSETS_SCRIPTS_VENDOR_DIR,
+} = process.env
 
 type Namespace = 'all' | 'global' | 'none' | string
 
@@ -24,107 +32,122 @@ const extInjectFns = {
 	js: (path: string) => `import '${path}'\n`,
 }
 
-const checkNamespaceFiles = (namespace: string) => {
-	if (namespace === 'none') return
-	const pathes = getNamespacePathes(namespace)
-	const components = getNamespaceComponents(namespace)
-	let needPug = false
-	let needScss = false
-	let needJs = false
+const autoimportRegexp = new RegExp('//- @-auto-import\n')
 
-	for (const component of components) {
-		const [category, name] = component.split('/')
-		const componentPathes = getComponentPathes(category, name)
-
-		if (componentPathes.pugFileExists) needPug = true
-		if (componentPathes.scssFileExists) needScss = true
-		if (componentPathes.jsFileExists) needJs = true
-		if (needPug && needScss && needJs) break
-	}
-
-	if (!pathes.pugFileExists && needPug) {
-		createPage(namespace)
-		log(__('LOG_NAMESPACE_FILES_CREATED_PAGE', { namespace }))
-	}
-
-	if (!pathes.scssFileExists && needScss) {
-		includePageStyle(namespace)
-		log(__('LOG_NAMESPACE_FILES_CREATED_STYLE', { namespace }))
-	}
-
-	if (!pathes.jsFileExists && needJs) {
-		includePageScript(namespace)
-		log(__('LOG_NAMESPACE_FILES_CREATED_SCRIPT', { namespace }))
-	}
-}
-
-const loadNamespacesFiles = () => {
-	const namespaces = getNamespaceList()
-	const files = {}
-
-	for (const namespace of namespaces) {
-		if (namespace === 'none') continue
-		const pathes = getNamespacePathes(namespace)
-
-		files[namespace] = []
-		if (pathes.pugFileExists) files[namespace].push(pathes.pugPath)
-		if (pathes.scssFileExists) files[namespace].push(pathes.scssPath)
-		if (pathes.jsFileExists) files[namespace].push(pathes.jsPath)
-	}
-
-	return files
-}
-
-const reinjectComponentsInFile = (namespace: string, file: string) => {
-	const components = getNamespaceComponents(namespace)
-	const fileExt = path.extname(file).replace('.', '')
-	const fileName = path.basename(file)
-
+const clearInjection = (file: string, fileData: string) => {
+	const { fileExt } = getFileInfo(file)
 	const componentsRegexp = new RegExp(extReplaceFns[fileExt](), 'gm')
-	const autoimportRegexp = new RegExp('//- @-auto-import\n')
+	return fileData.replace(componentsRegexp, '')
+}
 
-	let componentsString = ''
+const addInjection = (
+	file: string,
+	fileData: string,
+	componentFile: string
+) => {
+	const { fileExt, fileDir } = getFileInfo(file)
 
-	for (const component of components) {
-		const [category, name] = component.split('/')
-		const pathes = getComponentPathes(category, name)
-		const pathFile = pathes[`${fileExt}Path`]
-		const pathFileExists = pathes[`${fileExt}FileExists`]
+	const includePath = path.relative(fileDir, componentFile)
 
-		const includePath = path.relative(file.replace(fileName, ''), pathFile)
-
-		if (pathFileExists) {
-			componentsString += extInjectFns[fileExt](includePath)
-		}
-	}
+	let componentsString = extInjectFns[fileExt](includePath)
 
 	componentsString += '//- @-auto-import\n'
 
+	return fileData.replace(autoimportRegexp, componentsString)
+}
+
+const reinjectFile = (file: string, componentFiles: string[]) => {
+	if (!fs.existsSync(file)) return
+
 	let fileData = fs.readFileSync(file, { encoding: 'utf-8' })
-	fileData = fileData.replace(componentsRegexp, '')
-	fileData = fileData.replace(autoimportRegexp, componentsString)
+
+	fileData = clearInjection(file, fileData)
+
+	for (const componentFile of componentFiles) {
+		fileData = addInjection(file, fileData, componentFile)
+	}
 
 	fs.writeFileSync(file, fileData)
 }
 
-export function reinjectComponents(namespace: Namespace) {
-	if (namespace === 'none') return warn(__('WARN_REINJECT_NONE'))
+export function reinjectComponents(target: Namespace) {
+	if (target === 'none') return warn(__('WARN_REINJECT_NONE'))
 
-	const config = readConfig().toDefault()
+	// Reinject components for namespace
+	const namespaces = getNamespaceList()
 
-	for (const key in config) {
-		checkNamespaceFiles(key)
-	}
+	for (const namespace of namespaces) {
+		if (target === 'all' || namespace === target) {
+			const pathes = getNamespacePathes(namespace)
+			const components = getNamespaceComponents(namespace)
+			const pageComponents = []
+			const styleComponents = []
+			const scriptComponents = []
 
-	const namespaces = loadNamespacesFiles()
+			for (const component of components) {
+				const { category, name } = getComponentInfo(component)
+				const namespacePathes = getNamespacePathes(namespace)
+				const componentPathes = getComponentPathes(category, name)
 
-	for (const namespaceKey in namespaces) {
-		if (namespace === 'all' || namespace === namespaceKey) {
-			for (const file of namespaces[namespaceKey]) {
-				reinjectComponentsInFile(namespaceKey, file)
+				if (componentPathes.pugFileExists) {
+					if (!namespacePathes.pugFileExists) {
+						createPage(namespace)
+						log(__('LOG_NAMESPACE_FILES_CREATED_PAGE', { namespace }))
+					}
+
+					pageComponents.push(componentPathes.pugPath)
+				}
+
+				if (componentPathes.scssFileExists) {
+					if (!namespacePathes.scssFileExists) {
+						includePageStyle(namespace)
+						log(__('LOG_NAMESPACE_FILES_CREATED_STYLE', { namespace }))
+					}
+
+					styleComponents.push(componentPathes.scssPath)
+				}
+
+				if (componentPathes.jsFileExists) {
+					if (!namespacePathes.jsFileExists) {
+						includePageScript(namespace)
+						log(__('LOG_NAMESPACE_FILES_CREATED_SCRIPT', { namespace }))
+					}
+
+					scriptComponents.push(componentPathes.jsPath)
+				}
 			}
+
+			reinjectFile(pathes.pugPath, pageComponents)
+			reinjectFile(pathes.scssPath, styleComponents)
+			reinjectFile(pathes.jsPath, scriptComponents)
 		}
 	}
 
-	log(__('LOG_SUCCESS_NAMESPACE_REINJECTED', { namespace }))
+	// Reinject variables of all components
+	const components = readConfig().toOneArray()
+	const styleComponentVars = []
+
+	for (const component of components) {
+		const { category, name } = getComponentInfo(component)
+		const componentPathes = getComponentPathes(category, name)
+
+		if (componentPathes.scssVarFileExists) {
+			styleComponentVars.push(componentPathes.scssVarPath)
+		}
+
+		if (componentPathes.jsVendorDirExsits) {
+			fs.readdirSync(componentPathes.jsVendorDirPath).map((file) => {
+				const oldPath = path.join(componentPathes.jsVendorDirPath, file)
+				const newPath = path.join(APP_ASSETS_SCRIPTS_VENDOR_DIR, file)
+
+				fs.renameSync(oldPath, newPath)
+			})
+
+			rmdir(componentPathes.jsVendorDirPath)
+		}
+	}
+
+	reinjectFile(ARTISAN_COMPONENT_AUTOIMPORT_SCSS_VAR_PATH, styleComponentVars)
+
+	log(__('LOG_SUCCESS_NAMESPACE_REINJECTED', { namespace: target }))
 }

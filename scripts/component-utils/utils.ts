@@ -18,10 +18,16 @@ interface ViewPathes {
 	pugPath: string
 	scssPath: string
 	jsPath: string
-
 	pugFileExists: boolean
 	scssFileExists: boolean
 	jsFileExists: boolean
+}
+
+interface ViewComponentPathes extends ViewPathes {
+	scssVarPath: string
+	scssVarFileExists: boolean
+	jsVendorDirPath: string
+	jsVendorDirExsits: boolean
 }
 
 const defaultPathes = {
@@ -31,6 +37,14 @@ const defaultPathes = {
 	pugFileExists: false,
 	scssFileExists: false,
 	jsFileExists: false,
+}
+
+const defaultComponentPathes = {
+	...defaultPathes,
+	scssVarPath: '',
+	jsVendorDirPath: '',
+	scssVarFileExists: false,
+	jsVendorDirExsits: false,
 }
 
 const invalidNameValues = ['', 'global', 'none', 'common']
@@ -103,17 +117,21 @@ export function getComponentInfo(component: string) {
 export function getComponentPathes(
 	category: string,
 	component: string
-): ViewPathes {
-	const result = { ...defaultPathes }
+): ViewComponentPathes {
+	const result = { ...defaultComponentPathes }
 	const dir = path.join(APP_COMPONENTS_DIR, category, component)
 
 	result.pugPath = path.join(dir, `${component}.pug`)
 	result.scssPath = path.join(dir, `${component}.scss`)
 	result.jsPath = path.join(dir, `${component}.js`)
+	result.scssVarPath = path.join(dir, '_variables.scss')
+	result.jsVendorDirPath = path.join(dir, 'vendor')
 
 	result.pugFileExists = fs.existsSync(result.pugPath)
 	result.scssFileExists = fs.existsSync(result.scssPath)
 	result.jsFileExists = fs.existsSync(result.jsPath)
+	result.scssVarFileExists = fs.existsSync(result.scssVarPath)
+	result.jsVendorDirExsits = fs.existsSync(result.jsVendorDirPath)
 
 	return result
 }
@@ -148,4 +166,12 @@ export function checkComponentName(name: string) {
 
 export function checkPageName(name: string) {
 	return !invalidNameValues.includes(name)
+}
+
+export function getFileInfo(file: string) {
+	const fileName = path.basename(file)
+	const fileExt = path.extname(file).replace('.', '')
+	const fileDir = file.replace(fileName, '')
+
+	return { fileName, fileExt, fileDir }
 }

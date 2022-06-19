@@ -16,4 +16,5 @@ export {
 	existsPage,
 	checkComponentName,
 	checkPageName,
+	getFileInfo,
 } from './utils'

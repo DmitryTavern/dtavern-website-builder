@@ -68,7 +68,7 @@ const importStore = (answers: ImportComponentsAnswers) => {
 				})
 			)
 
-			return
+			continue
 		}
 
 		const componentConfig = JSON.parse(
@@ -76,21 +76,25 @@ const importStore = (answers: ImportComponentsAnswers) => {
 		)
 
 		if (!componentConfig.depends) {
-			return error(
+			error(
 				__('ERROR_COMPONENT_CONFIG_HAVE_NOT_PARAM', {
 					component,
 					param: 'depends',
 				})
 			)
+
+			continue
 		}
 
 		if (!componentConfig.namespace) {
-			return error(
+			error(
 				__('ERROR_COMPONENT_CONFIG_HAVE_NOT_PARAM', {
 					component,
 					param: 'namespace',
 				})
 			)
+
+			continue
 		}
 
 		for (const depend of componentConfig.depends) {
