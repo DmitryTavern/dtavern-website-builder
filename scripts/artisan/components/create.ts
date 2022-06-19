@@ -20,7 +20,6 @@ const {
 	ARTISAN_TEMPLATE_PUG_COMPONENT,
 	ARTISAN_TEMPLATE_SCSS_COMPONENT,
 	ARTISAN_TEMPLATE_JS_COMPONENT,
-	ARTISAN_COMPONENT_CATEGORIES,
 } = process.env
 
 const namespaceChoices = ['global', 'none']
@@ -28,6 +27,20 @@ const namespaces = getPageList()
 if (namespaces.length > 0) {
 	namespaceChoices.push(new inquirer.Separator())
 	namespaceChoices.push(...namespaces)
+}
+
+function getCategory() {
+	if (!fs.existsSync(APP_COMPONENTS_DIR)) return []
+
+	const categories = fs
+		.readdirSync(APP_COMPONENTS_DIR)
+		.filter((file) =>
+			fs.statSync(path.join(APP_COMPONENTS_DIR, file)).isDirectory()
+		)
+
+	categories.push(new inquirer.Separator())
+
+	return categories
 }
 
 const createComponentQuestions = [
@@ -39,7 +52,15 @@ const createComponentQuestions = [
 		type: 'list',
 		name: 'category',
 		message: 'Select component category:',
-		choices: ARTISAN_COMPONENT_CATEGORIES.split(','),
+		choices: [...getCategory(), 'Create new'],
+	},
+	{
+		type: 'input',
+		name: 'newCategory',
+		message: 'Input new category name:',
+		when(answers) {
+			return answers.category === 'Create new'
+		},
 	},
 	{
 		type: 'list',
@@ -50,7 +71,8 @@ const createComponentQuestions = [
 ]
 
 const createComponentCommand = (answers: CreateComponentAnswers) => {
-	const { name, pug, scss, js, category, namespace } = answers
+	const { name, pug, scss, js, namespace } = answers
+	const category = answers.newCategory || answers.category
 	const componentsDirPath = APP_COMPONENTS_DIR
 	const targeteNamespace = namespace.replace('.pug', '')
 	const categoryDirPath = path.join(componentsDirPath, category)

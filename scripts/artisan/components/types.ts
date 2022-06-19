@@ -4,6 +4,7 @@ export interface CreateComponentAnswers {
 	name: string
 	scss: string
 	category: string
+	newCategory?: string
 	namespace: string
 }
 
