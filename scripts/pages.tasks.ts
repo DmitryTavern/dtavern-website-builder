@@ -8,11 +8,10 @@ import * as plumber from 'gulp-plumber'
 import * as notify from 'gulp-notify'
 import * as types from './types'
 
-import watchViews from './helpers/watchViews'
-import watchComponents from './helpers/watchComponents'
+import { watchViews, watchComponents } from './watchers'
 import { setDisplayName } from './helpers/setDisplayName'
 import { isDev, isProd } from './helpers/mode'
-import { __ } from './helpers/logger'
+import { __ } from '../helpers/logger'
 
 const {
 	APP_VIEWS_DIR,
@@ -32,7 +31,7 @@ const compiler: types.Compiler = (input: string) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
-			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
+			.pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
 			.pipe(pug())
 			.pipe(rename({ dirname: '' }))
 			.pipe(gulp.dest(BUILD_DIR))

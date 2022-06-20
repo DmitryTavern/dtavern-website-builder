@@ -1,6 +1,6 @@
 import { setDisplayName } from './helpers/setDisplayName'
-import { rmdir } from './helpers/rmdir'
-import { __ } from './helpers/logger'
+import { rmdir } from '../helpers/dir'
+import { __ } from '../helpers/logger'
 
 const { APP_BUILD_DIRNAME } = process.env
 

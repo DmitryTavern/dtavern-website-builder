@@ -1,17 +1,17 @@
 import * as server from 'browser-sync'
 import { setDisplayName } from './helpers/setDisplayName'
 import { isDev, isProd } from './helpers/mode'
-import { __ } from './helpers/logger'
+import { __ } from '../helpers/logger'
 
 const { APP_BUILD_DIRNAME, APP_DEV_SERVER_PORT } = process.env
-
-const taskName = __('TASK_SERVER')
 
 let browserSync
 
 if (isDev()) {
 	browserSync = server.create()
 }
+
+const taskName = __('TASK_SERVER')
 
 export default setDisplayName(taskName, (done: any) => {
 	if (isProd()) return done()

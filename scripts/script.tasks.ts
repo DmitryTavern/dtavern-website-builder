@@ -9,12 +9,11 @@ import * as uglify from 'gulp-uglify'
 import * as rename from 'gulp-rename'
 import * as types from './types'
 
-import watchViews from './helpers/watchViews'
-import watchComponents from './helpers/watchComponents'
+import { watchViews, watchComponents } from './watchers'
 import { setDisplayName } from './helpers/setDisplayName'
 import { isDev, isProd } from './helpers/mode'
-import { mkdir } from './helpers/mkdir'
-import { __ } from './helpers/logger'
+import { mkdir } from '../helpers/dir'
+import { __ } from '../helpers/logger'
 
 const {
 	APP_COMPONENTS_DIR,

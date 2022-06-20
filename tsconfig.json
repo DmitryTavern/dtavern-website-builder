@@ -4,6 +4,6 @@
 			"module": "commonjs"
 		}
 	},
-	"include": ["scripts/**/*", "gulpfile.ts"],
+	"include": ["scripts/**/*", "artisan/**/*", "types/**/*", "gulpfile.ts"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }

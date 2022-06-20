@@ -9,7 +9,7 @@ import * as types from './types'
 
 import { setDisplayName } from './helpers/setDisplayName'
 import { isDev, isProd } from './helpers/mode'
-import { __ } from './helpers/logger'
+import { __ } from '../helpers/logger'
 
 const {
 	APP_ASSETS_IMAGES_DIR,
@@ -18,11 +18,6 @@ const {
 	APP_BUILD_DIRNAME,
 	APP_BUILD_IMAGES_DIRNAME,
 } = process.env
-
-const taskName = __('TASK_IMAGES')
-const taskCompilerImages = __('TASK_COMPILER_IMAGES')
-const taskCompilerWebp = __('TASK_COMPILER_IMAGES_WEBP')
-const taskCompilerFavicon = __('TASK_COMPILER_IMAGES_FAVICON')
 
 const IMAGES_FILES = path.join(APP_ASSETS_IMAGES_DIR, '/**/*.*')
 const IMAGES_FAVICON = path.join(APP_ASSETD_FAVICON_DIR, '**.*')
@@ -45,7 +40,7 @@ const imagesCompiler: types.Compiler = (input: string | string[]) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
-			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
+			.pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.reload({ stream: true }))
 
@@ -64,7 +59,7 @@ const webpCompiler: types.Compiler = (input: string | string[]) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
-			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
+			.pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
 			.pipe(webp())
 			.pipe(gulp.dest(BUILD_DIR))
 			.pipe(server.reload({ stream: true }))
@@ -84,12 +79,17 @@ const faviconCompiler: types.Compiler = (input: string | string[]) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
-			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
+			.pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
 			.pipe(gulp.dest(BUILD_FAVICON_DIR))
 			.pipe(server.reload({ stream: true }))
 
 	if (isProd()) return gulp.src(input).pipe(gulp.dest(BUILD_FAVICON_DIR))
 }
+
+const taskName = __('TASK_IMAGES')
+const taskCompilerImages = __('TASK_COMPILER_IMAGES')
+const taskCompilerWebp = __('TASK_COMPILER_IMAGES_WEBP')
+const taskCompilerFavicon = __('TASK_COMPILER_IMAGES_FAVICON')
 
 export default setDisplayName(taskName, (done: any) => {
 	const fn = setDisplayName(taskCompilerImages, imagesCompiler(SRC_IMAGES))

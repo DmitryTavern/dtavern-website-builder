@@ -1,21 +1,20 @@
 import * as path from 'path'
 import * as gulp from 'gulp'
-import * as server from 'browser-sync'
 import * as sass from 'sass'
-import * as gulpSass from 'gulp-sass'
-import * as gcmq from 'gulp-group-css-media-queries'
 import * as rename from 'gulp-rename'
-import * as cssnano from 'gulp-cssnano'
-import * as autoprefixer from 'gulp-autoprefixer'
-import * as plumber from 'gulp-plumber'
 import * as notify from 'gulp-notify'
+import * as server from 'browser-sync'
+import * as cssnano from 'gulp-cssnano'
+import * as plumber from 'gulp-plumber'
+import * as gulpSass from 'gulp-sass'
+import * as autoprefixer from 'gulp-autoprefixer'
+import * as gcmq from 'gulp-group-css-media-queries'
 import * as types from './types'
 
-import watchViews from './helpers/watchViews'
-import watchComponents from './helpers/watchComponents'
+import { watchViews, watchComponents } from './watchers'
 import { setDisplayName } from './helpers/setDisplayName'
 import { isDev, isProd } from './helpers/mode'
-import { __ } from './helpers/logger'
+import { __ } from '../helpers/logger'
 
 const {
 	APP_ASSETS_STYLES_DIR,
@@ -37,7 +36,7 @@ const compiler: types.Compiler = (input: string) => () => {
 	if (isDev())
 		return gulp
 			.src(input)
-			.pipe(plumber({ errorHandler: notify.onError("<%= error.message %>") }))
+			.pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
 			.pipe(sassGulp())
 			.pipe(gcmq())
 			.pipe(rename({ dirname: '' }))
