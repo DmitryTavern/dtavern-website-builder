@@ -1,3 +1,4 @@
+require('module-alias/register')
 require('dotenv/config')
 require('ts-node/register')
 const { program } = require('commander')
@@ -5,18 +6,18 @@ const { program } = require('commander')
 program.name('artisan')
 
 // Page commands
-require('./commands.pages/create')
-require('./commands.pages/rename')
+require('./pages/create')
+require('./pages/rename')
 
 // Component commands
-require('./commands.components/create')
-require('./commands.components/import')
-require('./commands.components/rename')
-require('./commands.components/reinject')
-require('./commands.components/remove')
+require('./components/create')
+require('./components/rename')
+require('./components/reinject')
+require('./components/remove')
 
 // Store
-require('./commands.store/install')
-require('./commands.store/update')
+require('./store/install')
+require('./store/import')
+require('./store/update')
 
 program.parse()

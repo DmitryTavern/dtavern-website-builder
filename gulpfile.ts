@@ -1,7 +1,8 @@
+import 'module-alias/register'
 import 'dotenv/config'
 import * as gulp from 'gulp'
 
-import { isDev } from './scripts/helpers/mode'
+import { isDev } from './utilities/mode'
 
 import viewsTask from './scripts/pages.tasks'
 import styleTask from './scripts/style.tasks'

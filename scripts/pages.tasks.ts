@@ -6,12 +6,15 @@ import * as rename from 'gulp-rename'
 import * as prettyHtml from 'gulp-html-prettify'
 import * as plumber from 'gulp-plumber'
 import * as notify from 'gulp-notify'
-import * as types from './types'
-
-import { watchViews, watchComponents } from './watchers'
-import { setDisplayName } from './helpers/setDisplayName'
-import { isDev, isProd } from './helpers/mode'
-import { __ } from '../helpers/logger'
+import * as types from '../types'
+import {
+	__,
+	isDev,
+	isProd,
+	watchViews,
+	watchComponents,
+	setDisplayName,
+} from '@utilities'
 
 const {
 	APP_VIEWS_DIR,

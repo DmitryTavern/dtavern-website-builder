@@ -1,7 +1,5 @@
 import * as server from 'browser-sync'
-import { setDisplayName } from './helpers/setDisplayName'
-import { isDev, isProd } from './helpers/mode'
-import { __ } from '../helpers/logger'
+import { __, isDev, isProd, setDisplayName } from '@utilities'
 
 const { APP_BUILD_DIRNAME, APP_DEV_SERVER_PORT } = process.env
 

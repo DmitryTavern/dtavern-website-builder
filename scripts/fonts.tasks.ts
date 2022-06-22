@@ -3,11 +3,9 @@ import * as gulp from 'gulp'
 import * as server from 'browser-sync'
 import * as plumber from 'gulp-plumber'
 import * as notify from 'gulp-notify'
-import * as types from './types'
+import * as types from '../types'
 
-import { setDisplayName } from './helpers/setDisplayName'
-import { isDev, isProd } from './helpers/mode'
-import { __ } from '../helpers/logger'
+import { __, isDev, isProd, setDisplayName } from '@utilities'
 
 const { APP_BUILD_DIRNAME, APP_ASSETS_FONTS_DIR, APP_BUILD_FONTS_DIRNAME } =
 	process.env

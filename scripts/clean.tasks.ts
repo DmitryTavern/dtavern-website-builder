@@ -1,6 +1,4 @@
-import { setDisplayName } from './helpers/setDisplayName'
-import { rmdir } from '../helpers/dir'
-import { __ } from '../helpers/logger'
+import { __, rmdir, setDisplayName } from '@utilities'
 
 const { APP_BUILD_DIRNAME } = process.env
 

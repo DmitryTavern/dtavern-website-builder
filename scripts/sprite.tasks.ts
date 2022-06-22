@@ -4,11 +4,9 @@ import * as server from 'browser-sync'
 import * as svgSprite from 'gulp-svg-sprite'
 import * as plumber from 'gulp-plumber'
 import * as notify from 'gulp-notify'
-import * as types from './types'
+import * as types from '../types'
 
-import { setDisplayName } from './helpers/setDisplayName'
-import { isProd } from './helpers/mode'
-import { __ } from '../helpers/logger'
+import { __, isProd, setDisplayName } from '@utilities'
 
 const {
 	APP_ASSETS_SPRITE_DIR,

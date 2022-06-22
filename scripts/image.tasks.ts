@@ -5,11 +5,9 @@ import * as webp from 'gulp-webp'
 import * as image from 'gulp-image'
 import * as plumber from 'gulp-plumber'
 import * as notify from 'gulp-notify'
-import * as types from './types'
+import * as types from '../types'
 
-import { setDisplayName } from './helpers/setDisplayName'
-import { isDev, isProd } from './helpers/mode'
-import { __ } from '../helpers/logger'
+import { __, isDev, isProd, setDisplayName } from '@utilities'
 
 const {
 	APP_ASSETS_IMAGES_DIR,

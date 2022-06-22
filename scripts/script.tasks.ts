@@ -7,13 +7,16 @@ import * as terser from 'rollup-plugin-terser'
 import * as server from 'browser-sync'
 import * as uglify from 'gulp-uglify'
 import * as rename from 'gulp-rename'
-import * as types from './types'
-
-import { watchViews, watchComponents } from './watchers'
-import { setDisplayName } from './helpers/setDisplayName'
-import { isDev, isProd } from './helpers/mode'
-import { mkdir } from '../helpers/dir'
-import { __ } from '../helpers/logger'
+import * as types from '../types'
+import {
+	__,
+	mkdir,
+	isDev,
+	isProd,
+	watchViews,
+	watchComponents,
+	setDisplayName,
+} from '@utilities'
 
 const {
 	APP_COMPONENTS_DIR,

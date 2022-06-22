@@ -9,12 +9,15 @@ import * as plumber from 'gulp-plumber'
 import * as gulpSass from 'gulp-sass'
 import * as autoprefixer from 'gulp-autoprefixer'
 import * as gcmq from 'gulp-group-css-media-queries'
-import * as types from './types'
-
-import { watchViews, watchComponents } from './watchers'
-import { setDisplayName } from './helpers/setDisplayName'
-import { isDev, isProd } from './helpers/mode'
-import { __ } from '../helpers/logger'
+import * as types from '../types'
+import {
+	__,
+	isDev,
+	isProd,
+	setDisplayName,
+	watchViews,
+	watchComponents,
+} from '@utilities'
 
 const {
 	APP_ASSETS_STYLES_DIR,
