@@ -1,4 +1,15 @@
 {
+	"version": "1.0.0",
+	"name": "dtavern-website-builder",
+	"description": "Powerful website builder on gulp",
+	"homepage": "https://github.com/DmitryTavern/dtavern-website-builder",
+	"keywords": ["gulp", "gulp-builder"],
+	"license": "MIT",
+	"author": {
+		"name": "Dmitry Tavern",
+		"email": "dogger.work@gmail.com",
+		"url": "https://github.com/DmitryTavern"
+	},
 	"scripts": {
 		"start": "cross-env NODE_ENV=development gulp start",
 		"build": "cross-env NODE_ENV=production gulp start",
