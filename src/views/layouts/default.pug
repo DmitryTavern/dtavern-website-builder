@@ -1,7 +1,9 @@
-include ../helpers/style
-include ../helpers/font
-include ../helpers/script
 include ../helpers/img
+include ../helpers/head
+include ../helpers/font
+include ../helpers/style
+include ../helpers/script
+include ../helpers/global
 
 doctype html
 html(lang='en')
@@ -9,15 +11,15 @@ html(lang='en')
 		meta(charset='UTF-8')
 		meta(http-equiv='X-UA-Compatible', content='IE=edge')
 		meta(name='viewport', content='width=device-width, initial-scale=1.0')
-		meta(name='description', content='')
-		link(rel='manifest', href='img/favicon/site.webmanifest')
+
+		+head
 
 		+style('style.css')
 
+		+font('Roboto/Roboto-Regular.ttf')
+
 		block head
 			title Title
-
-		+font('Roboto/Roboto-Regular.ttf')
 
 	body 
 		block header
@@ -27,7 +29,9 @@ html(lang='en')
 
 		block footer
 
-		+script('vendor/jquery.min.js')
+		+scriptVendor('jquery.min.js')
+		//- @-auto-import
+
 		+script('common.js')
 
 		block script

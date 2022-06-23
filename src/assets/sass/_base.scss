@@ -1,3 +1,5 @@
+@include font-face('Roboto', 'Roboto-Regular', 400, normal);
+
 *,
 *:before,
 *:after {
@@ -20,7 +22,7 @@ body {
 	font-family: $font-base;
 	font-size: $font-size-base;
 	font-weight: normal;
-  line-height: normal;
+	line-height: normal;
 	text-align: left;
 	display: flex;
 	flex-direction: column;

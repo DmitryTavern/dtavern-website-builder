@@ -1,16 +1,24 @@
+import * as fs from 'fs'
 import * as path from 'path'
 import * as gulp from 'gulp'
+import * as glob from 'glob'
+import * as rollup from 'rollup'
+import * as terser from 'rollup-plugin-terser'
 import * as server from 'browser-sync'
-import * as babel from 'gulp-babel'
+import * as uglify from 'gulp-uglify'
 import * as rename from 'gulp-rename'
-import * as types from './types'
-
-import taskWrap from './helpers/taskWrap'
-import compilerWrap from './helpers/compilerWrap'
-import watchViews from './helpers/watchViews'
+import * as types from '../types'
+import {
+	__,
+	mkdir,
+	isDev,
+	isProd,
+	watchViews,
+	watchComponents,
+	setDisplayName,
+} from '@utilities'
 
 const {
-	NODE_ENV,
 	APP_COMPONENTS_DIR,
 	APP_PAGES_SCRIPTS_DIR,
 	APP_ASSETS_SCRIPTS_DIR,
@@ -24,7 +32,7 @@ const SCRIPTS_JS = path.join(APP_ASSETS_SCRIPTS_DIR, '/**/*.js')
 const SCRIPTS_COMMON_JS = path.join(APP_ASSETS_SCRIPTS_DIR, '/*.js')
 const SCRIPTS_VENDOR_JS = path.join(APP_ASSETS_SCRIPTS_VENDOR_DIR, '/**/*.js')
 
-const PAGES_JS = path.join(APP_PAGES_SCRIPTS_DIR, '/**/*.js')
+const PAGES_JS = path.join(APP_PAGES_SCRIPTS_DIR, '/*.js')
 const COMPONENTS_JS = path.join(APP_COMPONENTS_DIR, '/**/*.js')
 
 const BUILD_DIR = path.join(APP_BUILD_DIRNAME, APP_BUILD_SCRIPTS_DIRNAME)
@@ -33,69 +41,107 @@ const BUILD_VENDOR_DIR = path.join(
 	APP_BUILD_SCRIPTS_VENDOR_DIRNAME
 )
 
-const compiler: types.Compiler = (input: string) =>
-	compilerWrap('[js]: compiling all pages', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(input)
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(server.reload({ stream: true }))
+const rollupCompiler = async (input: string) => {
+	try {
+		const files = glob.sync(input)
 
-		if (NODE_ENV === 'production')
-			return gulp
-				.src(input)
-				.pipe(
-					babel({
-						presets: ['@babel/env'],
-					})
-				)
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-	})
+		for (const file of files) {
+			const name = path.basename(file)
 
-const vendorCompiler: types.Compiler = () =>
-	compilerWrap('[js]: compiling vendor', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(SCRIPTS_VENDOR_JS)
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_VENDOR_DIR))
-				.pipe(server.reload({ stream: true }))
+			const outputsList: any[] = [
+				{
+					file: path.join(BUILD_DIR, name),
+					format: 'cjs',
+				},
+			]
 
-		if (NODE_ENV === 'production')
-			return gulp
-				.src(SCRIPTS_VENDOR_JS)
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_VENDOR_DIR))
-	})
+			if (isProd()) {
+				outputsList.push({
+					file: path.join(BUILD_DIR, name.replace('.js', '.min.js')),
+					plugins: [terser.terser()],
+					format: 'cjs',
+				})
+			}
 
-export default taskWrap('[task]: run scripts services', (done: any) => {
-	if (NODE_ENV === 'production') {
-		gulp.series(
-			vendorCompiler(),
-			compiler(SCRIPTS_COMMON_JS),
-			compiler(PAGES_JS)
-		)(done)
+			const bundle = await rollup.rollup({ input: file })
+
+			for (const options of outputsList) {
+				const { output } = await bundle.generate(options)
+
+				for (const chunk of output) {
+					if (chunk.type === 'chunk') {
+						mkdir(BUILD_DIR)
+						fs.writeFileSync(path.join(BUILD_DIR, chunk.fileName), chunk.code)
+					}
+				}
+			}
+		}
+	} catch (e) {
+		console.error(e)
+	}
+}
+
+const compiler: types.Compiler = (input: string) => () => {
+	rollupCompiler(input)
+
+	if (isDev()) return gulp.src(input).pipe(server.reload({ stream: true }))
+	if (isProd()) return gulp.src(input)
+}
+
+const vendorCompiler: types.Compiler = (input: string) => () => {
+	if (isDev())
+		return gulp
+			.src(input)
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_VENDOR_DIR))
+			.pipe(server.reload({ stream: true }))
+
+	if (isProd())
+		return gulp
+			.src(input)
+			.pipe(uglify())
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_VENDOR_DIR))
+}
+
+const taskName = __('TASK_SCRIPT')
+const taskCompilerPages = __('TASK_COMPILER_SCRIPT_PAGES')
+const taskCompilerGlobal = __('TASK_COMPILER_SCRIPT_GLOBAL')
+const taskCompilerVendor = __('TASK_COMPILER_SCRIPT_VENDOR')
+
+export default setDisplayName(taskName, (done: any) => {
+	const fn = setDisplayName(taskCompilerGlobal, compiler(SCRIPTS_COMMON_JS))
+	const fnPages = setDisplayName(taskCompilerPages, compiler(PAGES_JS))
+	const fnVendor = setDisplayName(
+		taskCompilerVendor,
+		vendorCompiler(SCRIPTS_VENDOR_JS)
+	)
+
+	if (isProd()) {
+		gulp.series(fnVendor, fnPages, fn)(done)
 		return
 	}
 
-	watchViews(PAGES_JS, compiler)
+	watchViews(APP_PAGES_SCRIPTS_DIR, compiler)
+
+	watchComponents(COMPONENTS_JS, {
+		global: fn,
+		page: compiler,
+	})
 
 	gulp.watch(
-		[SCRIPTS_JS, COMPONENTS_JS, `!${SCRIPTS_VENDOR_JS}`],
+		[SCRIPTS_JS, `!${SCRIPTS_VENDOR_JS}`],
 		{
 			ignoreInitial: false,
 		},
-		gulp.series(compiler(SCRIPTS_COMMON_JS), compiler(PAGES_JS))
+		fn
 	)
 
 	gulp.watch(
-		[SCRIPTS_VENDOR_JS],
+		SCRIPTS_VENDOR_JS,
 		{
 			ignoreInitial: false,
 		},
-		vendorCompiler()
+		fnVendor
 	)
-}
-)
+})

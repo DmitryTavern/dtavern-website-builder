@@ -1,10 +1,10 @@
-import * as gulp from 'gulp'
-import * as clean from 'gulp-clean'
-import taskWrap from './helpers/taskWrap'
+import { __, rmdir, setDisplayName } from '@utilities'
 
 const { APP_BUILD_DIRNAME } = process.env
 
-export default taskWrap('[task]: clean folders', (done: any) => {
-	gulp.src(APP_BUILD_DIRNAME, { allowEmpty: true }).pipe(clean())
-	done()
+const taskName = __('TASK_CLEAN')
+
+export default setDisplayName(taskName, (done: any) => {
+	rmdir(APP_BUILD_DIRNAME)
+	return done()
 })

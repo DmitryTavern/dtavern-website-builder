@@ -3,15 +3,20 @@ import * as gulp from 'gulp'
 import * as pug from 'gulp-pug'
 import * as server from 'browser-sync'
 import * as rename from 'gulp-rename'
-import * as prettyHtml from 'gulp-pretty-html'
-import * as types from './types'
-
-import taskWrap from './helpers/taskWrap'
-import compilerWrap from './helpers/compilerWrap'
-import watchViews from './helpers/watchViews'
+import * as prettyHtml from 'gulp-html-prettify'
+import * as plumber from 'gulp-plumber'
+import * as notify from 'gulp-notify'
+import * as types from '../types'
+import {
+	__,
+	isDev,
+	isProd,
+	watchViews,
+	watchComponents,
+	setDisplayName,
+} from '@utilities'
 
 const {
-	NODE_ENV,
 	APP_VIEWS_DIR,
 	APP_PAGES_DIR,
 	APP_COMPONENTS_DIR,
@@ -25,35 +30,45 @@ const PAGES_PUG = path.join(APP_PAGES_DIR, '/*.pug')
 const PAGES_ALL_PUG = path.join(APP_PAGES_DIR, '/**/*.pug')
 const COMPONENTS_PUG = path.join(APP_COMPONENTS_DIR, '/**/*.pug')
 
-const compiler: types.Compiler = (input: string) =>
-	compilerWrap('[pug]: compiling all pages', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(input)
-				.pipe(pug())
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(server.stream())
+const compiler: types.Compiler = (input: string) => () => {
+	if (isDev())
+		return gulp
+			.src(input)
+			.pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
+			.pipe(pug())
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_DIR))
+			.pipe(server.stream())
 
-		if (NODE_ENV === 'production')
-			return gulp
-				.src(input)
-				.pipe(pug())
-				.pipe(prettyHtml())
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
+	if (isProd())
+		return gulp
+			.src(input)
+			.pipe(pug())
+			.pipe(prettyHtml({ indent_char: ' ', indent_size: 2 }))
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_DIR))
+}
+
+const taskName = __('TASK_HTML')
+const taskCompilerGlobal = __('TASK_COMPILER_PAGE', {
+	type: 'html',
+	namespace: 'all',
+})
+
+export default setDisplayName(taskName, (done: any) => {
+	const fn = setDisplayName(taskCompilerGlobal, compiler(PAGES_PUG))
+
+	if (isProd()) {
+		gulp.series(fn)(done)
+		return
+	}
+
+	watchViews(APP_PAGES_DIR, compiler)
+
+	watchComponents(COMPONENTS_PUG, {
+		global: fn,
+		page: compiler,
 	})
 
-export default taskWrap('[task]: run pages services', (done: any) => {
-	if (NODE_ENV === 'production') return compiler(PAGES_PUG)(done)
-
-	watchViews(PAGES_PUG, compiler)
-
-	gulp.watch(
-		[VIEWS_PUG, COMPONENTS_PUG, `!${PAGES_ALL_PUG}`],
-		{
-			ignoreInitial: false,
-		},
-		compiler(PAGES_PUG)
-	)
+	gulp.watch([VIEWS_PUG, `!${PAGES_ALL_PUG}`], fn)
 })

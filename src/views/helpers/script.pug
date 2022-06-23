@@ -1,2 +1,11 @@
+mixin scriptVendor(url='')
+	script(src=process.env.APP_BUILD_SCRIPTS_VENDOR_DIRNAME + '/' + url, defer)
+
 mixin script(url='')
-	script(src='js/' + url)
+	-
+		var env = process.env
+		var name = env.NODE_ENV === 'production' && env.APP_BUILD_MINIFY_SCRIPTS == 'true'
+			? url.replace('.js', '.min.js')
+			: url
+
+	script(src=process.env.APP_BUILD_SCRIPTS_DIRNAME + '/' + name, defer)

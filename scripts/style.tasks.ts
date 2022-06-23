@@ -1,21 +1,25 @@
 import * as path from 'path'
 import * as gulp from 'gulp'
-import * as server from 'browser-sync'
 import * as sass from 'sass'
-import * as gulpSass from 'gulp-sass'
-import * as gcmq from 'gulp-group-css-media-queries'
-import * as clean from 'gulp-clean-css'
 import * as rename from 'gulp-rename'
+import * as notify from 'gulp-notify'
+import * as server from 'browser-sync'
 import * as cssnano from 'gulp-cssnano'
+import * as plumber from 'gulp-plumber'
+import * as gulpSass from 'gulp-sass'
 import * as autoprefixer from 'gulp-autoprefixer'
-import * as types from './types'
-
-import taskWrap from './helpers/taskWrap'
-import compilerWrap from './helpers/compilerWrap'
-import watchViews from './helpers/watchViews'
+import * as gcmq from 'gulp-group-css-media-queries'
+import * as types from '../types'
+import {
+	__,
+	isDev,
+	isProd,
+	setDisplayName,
+	watchViews,
+	watchComponents,
+} from '@utilities'
 
 const {
-	NODE_ENV,
 	APP_ASSETS_STYLES_DIR,
 	APP_PAGES_STYLES_DIR,
 	APP_COMPONENTS_DIR,
@@ -31,69 +35,59 @@ const COMPONENTS_SASS = path.join(APP_COMPONENTS_DIR, '/**/*.scss')
 
 const sassGulp = gulpSass(sass)
 
-const compiler: types.Compiler = (input: string, msg: string) =>
-	compilerWrap(msg ? msg : '[sass]: compiling all pages', () => {
-		if (NODE_ENV === 'development')
-			return gulp
-				.src(input)
-				.pipe(sassGulp().on('error', sassGulp.logError))
-				.pipe(gcmq())
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-				.pipe(server.stream())
+const compiler: types.Compiler = (input: string) => () => {
+	if (isDev())
+		return gulp
+			.src(input)
+			.pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
+			.pipe(sassGulp())
+			.pipe(gcmq())
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_DIR))
+			.pipe(server.stream())
 
-		if (NODE_ENV === 'production')
-			return gulp
-				.src(input)
-				.pipe(sassGulp().on('error', sassGulp.logError))
-				.pipe(
-					autoprefixer({
-						browsers: [
-							'> 0.2%',
-							'last 8 versions',
-							'not dead',
-							'not op_mini all',
-							'android >= 4',
-							'chrome >= 45',
-							'ff >= 45',
-							'safari >= 7',
-							'opera >= 23',
-							'ios >= 7',
-							'bb >= 10',
-						],
-						cascade: false,
-					})
-				)
-				.pipe(clean())
-				.pipe(gcmq())
-				.pipe(cssnano())
-				.pipe(rename({ dirname: '' }))
-				.pipe(gulp.dest(BUILD_DIR))
-	})
+	if (isProd())
+		return gulp
+			.src(input)
+			.pipe(sassGulp().on('error', sassGulp.logError))
+			.pipe(
+				autoprefixer({
+					cascade: false,
+				})
+			)
+			.pipe(gcmq())
+			.pipe(rename({ dirname: '' }))
+			.pipe(gulp.dest(BUILD_DIR))
+			.pipe(rename({ suffix: '.min' }))
+			.pipe(cssnano())
+			.pipe(gulp.dest(BUILD_DIR))
+}
 
-export default taskWrap('[task]: run styles services', (done: any) => {
-	if (NODE_ENV === 'production') {
-		gulp.series(compiler(STYLES_COMMON_SASS), compiler(PAGES_SASS))(done)
+const taskName = __('TASK_STYLE')
+const taskCompilerPages = __('TASK_COMPILER_STYLE_PAGES')
+const taskCompilerGlobal = __('TASK_COMPILER_STYLE_GLOBAL')
+
+export default setDisplayName(taskName, (done: any) => {
+	const fn = setDisplayName(taskCompilerGlobal, compiler(STYLES_COMMON_SASS))
+	const fnPages = setDisplayName(taskCompilerPages, compiler(PAGES_SASS))
+
+	if (isProd()) {
+		gulp.series(fn, fnPages)(done)
 		return
 	}
 
-	watchViews(PAGES_SASS, compiler)
-	gulp.series(
-		compiler(STYLES_COMMON_SASS, '[sass]: compiling common file'),
-		compiler(PAGES_SASS)
-	)(null)
+	watchViews(APP_PAGES_STYLES_DIR, compiler)
+
+	watchComponents(COMPONENTS_SASS, {
+		global: fn,
+		page: compiler,
+	})
 
 	gulp.watch(
-		[COMPONENTS_SASS],
-		gulp.series(
-			compiler(STYLES_COMMON_SASS, '[sass]: compiling common file'),
-			compiler(PAGES_SASS)
-		)
+		STYLES_SASS,
+		{
+			ignoreInitial: false,
+		},
+		fn
 	)
-
-	gulp.watch(
-		[STYLES_SASS],
-		compiler(STYLES_COMMON_SASS, '[sass]: compiling common file')
-	)
-}
-)
+})

@@ -4,6 +4,14 @@
 			"module": "commonjs"
 		}
 	},
-	"include": ["scripts/**/*", "gulpfile.ts"],
+	"compilerOptions": {
+		"baseUrl": "./",
+		"paths": {
+			"@utilities": ["utilities/index.ts"],
+			"@utilities/artisan": ["artisan/utilities/index.ts"],
+			"@types": ["types/index.ts"]
+		}
+	},
+	"include": ["./types/NodeJS.d.ts", "**/*.ts"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }
