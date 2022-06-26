@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 import * as inquirer from 'inquirer'
 import * as types from '@types'
-import { program } from 'commander'
 import { reinjectComponents, createComponentFiles } from '@utilities/artisan'
 import {
 	__,
@@ -37,7 +36,7 @@ const getNamespaceChoices = () => {
 	return namespaceChoices
 }
 
-const createComponentQuestions = [
+const getQuestions = () => [
 	{ type: 'input', name: 'name', message: 'Component name:' },
 	{ type: 'confirm', name: 'pug', message: 'Create pug file?' },
 	{ type: 'confirm', name: 'scss', message: 'Create scss file?' },
@@ -52,9 +51,7 @@ const createComponentQuestions = [
 		type: 'input',
 		name: 'newCategory',
 		message: 'Input new category name:',
-		when(answers) {
-			return answers.category === 'Create new'
-		},
+		when: (answers) => answers.category === 'Create new',
 	},
 	{
 		type: 'list',
@@ -64,38 +61,34 @@ const createComponentQuestions = [
 	},
 ]
 
-const createComponentCommand = (answers: types.CreateComponentAnswers) => {
-	const { name } = answers
-	const category = answers.newCategory || answers.category
+export const createComponentCommand = () =>
+	inquirerWrap(getQuestions(), (answers: types.CreateComponentAnswers) => {
+		const { name } = answers
+		const category = answers.newCategory || answers.category
 
-	const component = getComponent(category, name)
-	const componentDirectory = getComponentDirectory(component)
-	const componentNamespace = answers.namespace.replace('.pug', '')
+		const component = getComponent(category, name)
+		const componentDirectory = getComponentDirectory(component)
+		const componentNamespace = answers.namespace.replace('.pug', '')
 
-	if (!checkComponentName(name)) {
-		return error(__('ERROR_INVALID_NAME'))
-	}
+		if (!checkComponentName(name)) {
+			return error(__('ERROR_INVALID_NAME'))
+		}
 
-	if (fs.existsSync(componentDirectory)) {
-		return error(__('ERROR_COMPONENT_EXISTS', { component: name, category }))
-	}
+		if (fs.existsSync(componentDirectory)) {
+			return error(__('ERROR_COMPONENT_EXISTS', { component: name, category }))
+		}
 
-	mkdir(componentDirectory)
+		mkdir(componentDirectory)
 
-	createComponentFiles(component, {
-		pug: answers.pug,
-		scss: answers.scss,
-		js: answers.js,
+		createComponentFiles(component, {
+			pug: answers.pug,
+			scss: answers.scss,
+			js: answers.js,
+		})
+
+		log(__('LOG_SUCCESS_COMPONENT_ADDED', { name }))
+
+		registerComponent(componentNamespace, category, name)
+
+		reinjectComponents(componentNamespace)
 	})
-
-	log(__('LOG_SUCCESS_COMPONENT_ADDED', { name }))
-
-	registerComponent(componentNamespace, category, name)
-
-	reinjectComponents(componentNamespace)
-}
-
-program
-	.command('create:component')
-	.description('create new component')
-	.action(() => inquirerWrap(createComponentQuestions, createComponentCommand))

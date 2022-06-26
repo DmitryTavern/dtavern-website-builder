@@ -1,12 +1,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as shell from 'shelljs'
-import { program } from 'commander'
 import { __, warn, log } from '@utilities'
 
 const { APP_PROJECT_STORE, APP_PROJECT_STORE_LINK } = process.env
 
-const installStore = () => {
+export const installStoreCommond = () => {
 	if (fs.existsSync(APP_PROJECT_STORE)) {
 		return warn(__('WARN_STORE_EXISTS'))
 	}
@@ -17,8 +16,3 @@ const installStore = () => {
 
 	log(__('LOG_STORE_INSTALLED'))
 }
-
-program
-	.command('install:store')
-	.description('install component store')
-	.action(() => installStore())

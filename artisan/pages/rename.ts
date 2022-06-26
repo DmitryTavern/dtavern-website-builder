@@ -1,5 +1,4 @@
 import * as types from '@types'
-import { program } from 'commander'
 import { renamePage } from '@utilities/artisan'
 import {
 	__,
@@ -10,7 +9,7 @@ import {
 	checkPageName,
 } from '@utilities'
 
-const renamePageQuestions = [
+const getQuestions = () => [
 	{
 		type: 'list',
 		name: 'oldName',
@@ -20,21 +19,17 @@ const renamePageQuestions = [
 	{ type: 'input', name: 'newName', message: 'New page name (without ext):' },
 ]
 
-const renamePageCommand = (answers: types.RenamePageAnswers) => {
-	const { oldName, newName } = answers
+export const renamePageCommand = () =>
+	inquirerWrap(getQuestions(), (answers: types.RenamePageAnswers) => {
+		const { oldName, newName } = answers
 
-	if (!checkPageName(newName)) {
-		return error(__('ERROR_INVALID_NAME'))
-	}
+		if (!checkPageName(newName)) {
+			return error(__('ERROR_INVALID_NAME'))
+		}
 
-	if (existsPage(newName)) {
-		return error(__('ERROR_NAME_TAKEN', { name: newName }))
-	}
+		if (existsPage(newName)) {
+			return error(__('ERROR_NAME_TAKEN', { name: newName }))
+		}
 
-	renamePage(oldName, newName)
-}
-
-program
-	.command('rename:page')
-	.description('renaming page')
-	.action(() => inquirerWrap(renamePageQuestions, renamePageCommand))
+		renamePage(oldName, newName)
+	})
