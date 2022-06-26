@@ -3,7 +3,10 @@
 	"name": "dtavern-website-builder",
 	"description": "Powerful website builder on gulp",
 	"homepage": "https://github.com/DmitryTavern/dtavern-website-builder",
-	"keywords": ["gulp", "gulp-builder"],
+	"keywords": [
+		"gulp",
+		"gulp-builder"
+	],
 	"license": "MIT",
 	"author": {
 		"name": "Dmitry Tavern",
@@ -13,7 +16,7 @@
 	"scripts": {
 		"start": "cross-env NODE_ENV=development gulp start",
 		"build": "cross-env NODE_ENV=production gulp start",
-		"express": "cross-env NODE_ENV=production node ./scripts/express.js"
+		"express": "cross-env NODE_ENV=production node ./express.js"
 	},
 	"devDependencies": {
 		"@prettier/plugin-pug": "^1.19.2",
