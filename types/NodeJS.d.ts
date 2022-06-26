@@ -43,6 +43,8 @@ declare global {
 			APP_BUILD_MINIFY_SCRIPTS: string
 
 			// Artisan
+			ARTISAN_NAME: string
+			ARTISAN_BASH_NAME: string
 			ARTISAN_TEMPLATES_DIR: string
 			ARTISAN_TEMPLATE_PUG_PAGE: string
 			ARTISAN_TEMPLATE_SCSS_PAGE: string
