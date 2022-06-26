@@ -21,6 +21,8 @@
 	},
 	"devDependencies": {
 		"@prettier/plugin-pug": "^1.19.2",
+		"@swc/cli": "^0.1.57",
+		"@swc/core": "^1.2.205",
 		"@types/browser-sync": "^2.26.3",
 		"@types/gulp": "^4.0.9",
 		"@types/gulp-rename": "^2.0.1",

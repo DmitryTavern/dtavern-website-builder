@@ -41,7 +41,7 @@ const BUILD_VENDOR_DIR = path.join(
 	APP_BUILD_SCRIPTS_VENDOR_DIRNAME
 )
 
-const rollupCompiler = async (input: string) => {
+const rollupCompiler = (input: string) => {
 	try {
 		const files = glob.sync(input)
 
@@ -63,18 +63,21 @@ const rollupCompiler = async (input: string) => {
 				})
 			}
 
-			const bundle = await rollup.rollup({ input: file })
-
-			for (const options of outputsList) {
-				const { output } = await bundle.generate(options)
-
-				for (const chunk of output) {
-					if (chunk.type === 'chunk') {
-						mkdir(BUILD_DIR)
-						fs.writeFileSync(path.join(BUILD_DIR, chunk.fileName), chunk.code)
-					}
+			rollup.rollup({ input: file }).then((bundle) => {
+				for (const options of outputsList) {
+					bundle.generate(options).then(({ output }) => {
+						for (const chunk of output) {
+							if (chunk.type === 'chunk') {
+								mkdir(BUILD_DIR)
+								fs.writeFileSync(
+									path.join(BUILD_DIR, chunk.fileName),
+									chunk.code
+								)
+							}
+						}
+					})
 				}
-			}
+			})
 		}
 	} catch (e) {
 		console.error(e)
