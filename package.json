@@ -1,9 +1,12 @@
 {
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"name": "dtavern-website-builder",
 	"description": "Powerful website builder on gulp",
 	"homepage": "https://github.com/DmitryTavern/dtavern-website-builder",
-	"keywords": ["gulp", "gulp-builder"],
+	"keywords": [
+		"gulp",
+		"gulp-builder"
+	],
 	"license": "MIT",
 	"author": {
 		"name": "Dmitry Tavern",
@@ -13,10 +16,13 @@
 	"scripts": {
 		"start": "cross-env NODE_ENV=development gulp start",
 		"build": "cross-env NODE_ENV=production gulp start",
-		"express": "cross-env NODE_ENV=production node ./scripts/express.js"
+		"express": "cross-env NODE_ENV=production node ./express.js",
+		"preinstall": "node ./artisan/preinstall.js"
 	},
 	"devDependencies": {
 		"@prettier/plugin-pug": "^1.19.2",
+		"@swc/cli": "^0.1.57",
+		"@swc/core": "^1.2.205",
 		"@types/browser-sync": "^2.26.3",
 		"@types/gulp": "^4.0.9",
 		"@types/gulp-rename": "^2.0.1",
@@ -50,6 +56,7 @@
 		"inquirer": "^8.2.4",
 		"mkdirp": "^1.0.4",
 		"module-alias": "^2.2.2",
+		"omelette": "^0.4.17",
 		"prettier": "^2.5.1",
 		"rollup": "^2.75.5",
 		"rollup-plugin-terser": "^7.0.2",

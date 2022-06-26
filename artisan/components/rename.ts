@@ -1,5 +1,4 @@
 import * as types from '@types'
-import { program } from 'commander'
 import { renameComponent, reinjectComponents } from '@utilities/artisan'
 import {
 	__,
@@ -12,7 +11,7 @@ import {
 	getNamespaceByComponent,
 } from '@utilities'
 
-const renameComponentQuestions = [
+const getQuestions = () => [
 	{
 		type: 'list',
 		name: 'component',
@@ -26,32 +25,28 @@ const renameComponentQuestions = [
 	},
 ]
 
-const renameComponentCommand = (answers: types.RenameComponentAnswers) => {
-	const { component, newName } = answers
+export const renameComponentCommand = () =>
+	inquirerWrap(getQuestions(), (answers: types.RenameComponentAnswers) => {
+		const { component, newName } = answers
 
-	if (!checkComponentName(newName)) {
-		return error(__('ERROR_INVALID_NAME'))
-	}
+		if (!checkComponentName(newName)) {
+			return error(__('ERROR_INVALID_NAME'))
+		}
 
-	if (existsComponentByName(newName)) {
-		return error(__('ERROR_NAME_TAKEN', { name: newName }))
-	}
+		if (existsComponentByName(newName)) {
+			return error(__('ERROR_NAME_TAKEN', { name: newName }))
+		}
 
-	const namespace = getNamespaceByComponent(component)
+		const namespace = getNamespaceByComponent(component)
 
-	renameComponent(component, newName)
+		renameComponent(component, newName)
 
-	reinjectComponents(namespace)
+		reinjectComponents(namespace)
 
-	log(
-		__('LOG_SUCCESS_COMPONENT_RENAMED', {
-			oldName: component,
-			newName,
-		})
-	)
-}
-
-program
-	.command('rename:component')
-	.description('rename component')
-	.action(() => inquirerWrap(renameComponentQuestions, renameComponentCommand))
+		log(
+			__('LOG_SUCCESS_COMPONENT_RENAMED', {
+				oldName: component,
+				newName,
+			})
+		)
+	})

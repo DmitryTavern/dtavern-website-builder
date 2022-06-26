@@ -41,6 +41,18 @@ Commands:
 - **update:store** - update component store
 - **import:store** - import components from store to project
 
+You can turn on autocomplete in artisan with [omelette](https://github.com/f/omelette). If you use bash, run:
+
+```
+npm run preinstall
+// or
+node ./artisan/preinstall.js
+```
+
+Do it **ONE TIME** on the system because this script loads bash scripts to ./bachrc and will always work.
+
+But, if you something else read this [Omelette_Autocomplete_Instruction](https://github.com/f/omelette/issues/33#issuecomment-439864555) and edit `preinstall.js` script. You need load script from omelette and load `artisan` alias.
+
 ### 2. Structure
 
 Based on my experience, I have decided that the current structure will be the most efficient for developing small/medium projects as well as large ones.

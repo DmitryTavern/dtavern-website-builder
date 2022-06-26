@@ -1,5 +1,4 @@
 import * as types from '@types'
-import { program } from 'commander'
 import { reinjectComponents } from '@utilities/artisan'
 import {
 	rmdir,
@@ -9,7 +8,7 @@ import {
 	unregisterComponent,
 } from '@utilities'
 
-const removeComponentQuestions = [
+const getQuestions = () => [
 	{
 		type: 'checkbox',
 		name: 'components',
@@ -19,21 +18,17 @@ const removeComponentQuestions = [
 	},
 ]
 
-const RemoveComponentCommand = (answers: types.RemoveComponentAnswers) => {
-	const { components } = answers
+export const removeComponentsCommand = () =>
+	inquirerWrap(getQuestions(), (answers: types.RemoveComponentAnswers) => {
+		const { components } = answers
 
-	for (const component of components) {
-		const componentDirectory = getComponentDirectory(component)
+		for (const component of components) {
+			const componentDirectory = getComponentDirectory(component)
 
-		rmdir(componentDirectory)
+			rmdir(componentDirectory)
 
-		unregisterComponent(component)
-	}
+			unregisterComponent(component)
+		}
 
-	reinjectComponents('all')
-}
-
-program
-	.command('remove:components')
-	.description('remove component')
-	.action(() => inquirerWrap(removeComponentQuestions, RemoveComponentCommand))
+		reinjectComponents('all')
+	})

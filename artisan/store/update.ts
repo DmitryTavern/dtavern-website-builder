@@ -1,12 +1,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as shell from 'shelljs'
-import { program } from 'commander'
 import { __, log, rmdir } from '@utilities'
 
 const { APP_PROJECT_STORE, APP_PROJECT_STORE_LINK } = process.env
 
-const installStore = () => {
+export const updateStoreCommand = () => {
 	if (fs.existsSync(APP_PROJECT_STORE)) {
 		rmdir(APP_PROJECT_STORE)
 	}
@@ -17,8 +16,3 @@ const installStore = () => {
 
 	log(__('LOG_STORE_UPDATED'))
 }
-
-program
-	.command('update:store')
-	.description('update component store')
-	.action(() => installStore())
