@@ -29,6 +29,7 @@ export function createComponentFiles(
 	const directory = getComponentDirectory(component)
 	const templateOptions = {
 		name: info.name,
+		tag: info.name.match(/-section$/) ? 'section' : '',
 	}
 
 	mkdir(directory)
