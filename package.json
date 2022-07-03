@@ -1,8 +1,8 @@
 {
 	"version": "1.1.0",
-	"name": "dtavern-website-builder",
+	"name": "website-builder",
 	"description": "Powerful website builder on gulp",
-	"homepage": "https://github.com/DmitryTavern/dtavern-website-builder",
+	"homepage": "https://github.com/DmitryTavern/website-builder",
 	"keywords": [
 		"gulp",
 		"gulp-builder"
