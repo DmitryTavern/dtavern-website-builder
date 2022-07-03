@@ -16,6 +16,8 @@ import {
 	checkComponentName,
 } from '@utilities'
 
+const { ARTISAN_COMPONENT_AUTOIMPORT_ALL_GLOBAL } = process.env
+
 const getCategoryChoices = () => {
 	const categoryChoices: inquirer.ChoiceCollection = getCategories()
 	if (categoryChoices.length > 0) {
@@ -58,17 +60,20 @@ const getQuestions = () => [
 		name: 'namespace',
 		message: 'Where to connect this component?',
 		choices: getNamespaceChoices(),
+		when: () => ARTISAN_COMPONENT_AUTOIMPORT_ALL_GLOBAL === 'false',
 	},
 ]
 
 export const createComponentCommand = () =>
 	inquirerWrap(getQuestions(), (answers: types.CreateComponentAnswers) => {
-		const { name } = answers
+		const { name, namespace } = answers
 		const category = answers.newCategory || answers.category
 
 		const component = getComponent(category, name)
 		const componentDirectory = getComponentDirectory(component)
-		const componentNamespace = answers.namespace.replace('.pug', '')
+		const componentNamespace = namespace
+			? namespace.replace('.pug', '')
+			: 'global'
 
 		if (!checkComponentName(name)) {
 			return error(__('ERROR_INVALID_NAME'))
