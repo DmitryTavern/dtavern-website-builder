@@ -1,0 +1,21 @@
+{
+  "name": "@dmitrytavern/website-builder",
+  "version": "0.0.1",
+  "bin": {
+    "website": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.js --bundleConfigAsCjs"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.3",
+    "gulp": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/gulp": "^4.0.10"
+  }
+}

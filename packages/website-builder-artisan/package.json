@@ -1,0 +1,17 @@
+{
+  "name": "@dmitrytavern/website-builder-artisan",
+  "version": "0.0.1",
+  "bin": {
+    "artisan": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.js --bundleConfigAsCjs"
+  },
+  "dependencies": {
+    "commander": "^10.0.1"
+  }
+}
