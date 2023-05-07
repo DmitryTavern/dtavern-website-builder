@@ -108,4 +108,19 @@ export interface Environment {
      */
     outputVendorDir: string
   }
+
+  /**
+   * Defines settings for processing images.
+   */
+  images: {
+    /**
+     * Defines a directory path that will store images.
+     */
+    sourceDir: string
+
+    /**
+     * Specifies the output path of the images build artifacts.
+     */
+    outputDir: string
+  }
 }

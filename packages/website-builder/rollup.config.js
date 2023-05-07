@@ -26,6 +26,10 @@ const globals = {
   rollup: 'rollup',
   'gulp-uglify': 'gulp-uglify',
   '@rollup/plugin-terser': '@rollup/plugin-terser',
+
+  // Images
+  'gulp-webp': 'gulp-webp',
+  'gulp-image': 'gulp-image',
 }
 
 export default shared.bundle({
