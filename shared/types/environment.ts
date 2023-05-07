@@ -123,4 +123,19 @@ export interface Environment {
      */
     outputDir: string
   }
+
+  /**
+   * Defines settings for font processing.
+   */
+  fonts: {
+    /**
+     * Defines a directory path that will fonts store.
+     */
+    sourceDir: string
+
+    /**
+     * Specifies the output path of the fonts build artifacts.
+     */
+    outputDir: string
+  }
 }
