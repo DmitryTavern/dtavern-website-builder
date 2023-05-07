@@ -8,6 +8,11 @@ export interface Environment {
   root: string
 
   /**
+   *
+   */
+  publicUrl: string
+
+  /**
    * Defines a path relative to the project root that will
    * store all the project source files and that will take
    * part in constructing complete paths for them.

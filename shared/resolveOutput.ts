@@ -7,5 +7,5 @@ import { env } from './environment'
  * @returns
  */
 export const resolveOutput = (...paths: string[]) => {
-  return path.join(env.root, env.outputDir, ...paths)
+  return path.join(env.root, env.outputDir, env.publicUrl, ...paths)
 }
