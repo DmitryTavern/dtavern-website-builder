@@ -2,6 +2,8 @@ import gulp from 'gulp'
 import path from 'path'
 import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
+import { resolveSource } from '@shared/resolveSource'
+import { resolveOutput } from '@shared/resolveOutput'
 import { isDevelopment, isProduction } from '@shared/mode'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
 import {
@@ -20,34 +22,21 @@ export const images: TaskFunction = function images(
   done: TaskFunctionCallback
 ) {
   const env = environment()
-
-  const imagesSourceDir = path.join(
-    env.root,
-    env.sourceDir,
-    env.images.sourceDir
-  )
-
-  const imagesOutputDir = path.join(
-    env.root,
-    env.outputDir,
-    env.images.outputDir
-  )
-
-  const pngGlob = path.join(imagesSourceDir, '**', '*.*')
-  const webpGlob = path.join(imagesSourceDir, '**', '*.+(png|jpg|jpeg)')
+  const sourceDir = resolveSource(env.images.sourceDir)
+  const outputDir = resolveOutput(env.images.outputDir)
+  const pngGlob = path.join(sourceDir, '**', '*.*')
+  const webpGlob = path.join(sourceDir, '**', '*.+(png|jpg|jpeg)')
 
   if (isProduction()) {
-    const _pngCompiler = compiler(pngGlob, imagesOutputDir)
-    const _webpCompiler = webpCompiler(webpGlob, imagesOutputDir)
-
+    const _pngCompiler = compiler(pngGlob, outputDir)
+    const _webpCompiler = webpCompiler(webpGlob, outputDir)
     gulp.series(_pngCompiler, _webpCompiler)(done)
     return
   }
 
   if (isDevelopment()) {
-    const _pngCompiler = devCompiler(pngGlob, imagesOutputDir)
-    const _webpCompiler = devWebpCompiler(webpGlob, imagesOutputDir)
-
+    const _pngCompiler = devCompiler(pngGlob, outputDir)
+    const _webpCompiler = devWebpCompiler(webpGlob, outputDir)
     watcher(pngGlob, _pngCompiler)
     watcher(webpGlob, _webpCompiler)
     return

@@ -1,6 +1,5 @@
 import fs from 'fs'
-import path from 'path'
-import { environment } from '@shared/environment'
+import { resolveOutput } from '@shared/resolveOutput'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
 
 /**
@@ -8,9 +7,7 @@ import { TaskFunction, TaskFunctionCallback } from 'gulp'
  * @param done gulp TaskFunctionCallback
  */
 export const clean: TaskFunction = function clean(done: TaskFunctionCallback) {
-  const env = environment()
-
-  const outputDir = path.join(env.root, env.outputDir)
+  const outputDir = resolveOutput('./')
 
   if (fs.existsSync(outputDir)) {
     fs.rmSync(outputDir, {

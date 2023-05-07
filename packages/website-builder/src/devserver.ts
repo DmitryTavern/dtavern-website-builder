@@ -1,6 +1,7 @@
 import path from 'path'
 import server from 'browser-sync'
 import { environment } from '@shared/environment'
+import { resolveOutput } from '@shared/resolveOutput'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
 import { isDevelopment, isProduction } from '@shared/mode'
 
@@ -21,8 +22,7 @@ export const devserver: TaskFunction = function devserver(
   if (isProduction()) return done()
 
   const env = environment()
-
-  const outputDir = path.join(env.root, env.outputDir)
+  const outputDir = resolveOutput('./')
 
   if (browserSync) {
     browserSync.init({

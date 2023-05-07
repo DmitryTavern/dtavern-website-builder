@@ -2,6 +2,8 @@ import path from 'path'
 import gulp from 'gulp'
 import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
+import { resolveSource } from '@shared/resolveSource'
+import { resolveOutput } from '@shared/resolveOutput'
 import { isDevelopment, isProduction } from '@shared/mode'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
 import {
@@ -19,31 +21,12 @@ export const scripts: TaskFunction = function scripts(
   done: TaskFunctionCallback
 ) {
   const env = environment()
-
-  const sourceDir = path.join(env.root, env.sourceDir, env.scripts.sourceDir)
-  const sourcePagesDir = path.join(
-    env.root,
-    env.sourceDir,
-    env.scripts.sourcePagesDir
-  )
-  const sourceVendorDir = path.join(
-    env.root,
-    env.sourceDir,
-    env.scripts.sourceVendorDir
-  )
-
-  const outputDir = path.join(env.root, env.outputDir, env.scripts.outputDir)
-  const outputPagesDir = path.join(
-    env.root,
-    env.outputDir,
-    env.scripts.outputPagesDir
-  )
-  const outputVendorDir = path.join(
-    env.root,
-    env.outputDir,
-    env.scripts.outputVendorDir
-  )
-
+  const sourceDir = resolveSource(env.scripts.sourceDir)
+  const sourcePagesDir = resolveSource(env.scripts.sourcePagesDir)
+  const sourceVendorDir = resolveSource(env.scripts.sourceVendorDir)
+  const outputDir = resolveOutput(env.scripts.outputDir)
+  const outputPagesDir = resolveOutput(env.scripts.outputPagesDir)
+  const outputVendorDir = resolveOutput(env.scripts.outputVendorDir)
   const scriptsGlob = path.join(sourceDir, '*.js')
   const scriptsPagesGlob = path.join(sourcePagesDir, '*.js')
   const scriptsVendorGlob = path.join(sourceVendorDir, '*.js')

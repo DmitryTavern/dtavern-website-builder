@@ -2,6 +2,8 @@ import path from 'path'
 import gulp from 'gulp'
 import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
+import { resolveSource } from '@shared/resolveSource'
+import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/htmlCompilers'
 import { isDevelopment, isProduction } from '@shared/mode'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
@@ -12,24 +14,21 @@ import { TaskFunction, TaskFunctionCallback } from 'gulp'
  */
 export const html: TaskFunction = function html(done: TaskFunctionCallback) {
   const env = environment()
-  const viewsSourceDir = path.join(env.root, env.sourceDir, env.html.sourceDir)
-  const viewsOutputDir = path.join(env.root, env.outputDir, env.html.outputDir)
-  const viewsPagesGlob = path.join(viewsSourceDir, '*.pug')
-  const viewsGlob = path.join(viewsSourceDir, '**', '*.pug')
+  const sourceDir = resolveSource(env.html.sourceDir)
+  const outputDir = resolveOutput(env.html.outputDir)
+  const viewsGlob = path.join(outputDir, '**', '*.pug')
+  const viewsPagesGlob = path.join(sourceDir, '*.pug')
 
   if (isProduction()) {
-    const pagesCompiler = compiler(viewsPagesGlob, viewsOutputDir)
-
+    const pagesCompiler = compiler(viewsPagesGlob, outputDir)
     gulp.series(pagesCompiler)(done)
     return
   }
 
   if (isDevelopment()) {
-    const pagesCompiler = devCompiler(viewsPagesGlob, viewsOutputDir)
-
+    const pagesCompiler = devCompiler(viewsPagesGlob, outputDir)
     watcher([viewsGlob, `!${viewsPagesGlob}`], pagesCompiler)
     watcher(viewsPagesGlob, pagesCompiler)
-
     return
   }
 }
