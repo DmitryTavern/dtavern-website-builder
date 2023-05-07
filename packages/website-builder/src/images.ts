@@ -1,5 +1,6 @@
 import gulp from 'gulp'
 import path from 'path'
+import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
 import { isDevelopment, isProduction } from '@shared/mode'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
@@ -47,8 +48,8 @@ export const images: TaskFunction = function images(
     const _pngCompiler = devCompiler(pngGlob, imagesOutputDir)
     const _webpCompiler = devWebpCompiler(webpGlob, imagesOutputDir)
 
-    gulp.watch(pngGlob, _pngCompiler)
-    gulp.watch(webpGlob, _webpCompiler)
+    watcher(pngGlob, _pngCompiler)
+    watcher(webpGlob, _webpCompiler)
     return
   }
 }

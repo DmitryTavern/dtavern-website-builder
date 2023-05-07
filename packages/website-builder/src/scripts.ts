@@ -1,5 +1,6 @@
 import path from 'path'
 import gulp from 'gulp'
+import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
 import { isDevelopment, isProduction } from '@shared/mode'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
@@ -95,9 +96,9 @@ export const scripts: TaskFunction = function scripts(
       outputVendorDir
     )
 
-    gulp.watch(scriptsCompilerGlob, scriptsCompiler)
-    gulp.watch(scriptsPageCompilerGlob, scriptsPageCompiler)
-    gulp.watch(scriptsVendorCompilerGlob, scriptsVendorCompiler)
+    watcher(scriptsCompilerGlob, scriptsCompiler)
+    watcher(scriptsPageCompilerGlob, scriptsPageCompiler)
+    watcher(scriptsVendorCompilerGlob, scriptsVendorCompiler)
     return
   }
 }

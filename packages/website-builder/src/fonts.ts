@@ -1,5 +1,6 @@
 import path from 'path'
 import gulp from 'gulp'
+import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
 import { isDevelopment, isProduction } from '@shared/mode'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
@@ -27,7 +28,8 @@ export const fonts: TaskFunction = function fonts(done: TaskFunctionCallback) {
   if (isDevelopment()) {
     const fontsCompiler = devCompiler(fontsGlob, fontsOutputDir)
 
-    gulp.watch(fontsGlob, fontsCompiler)
+    watcher(fontsGlob, fontsCompiler)
+
     return
   }
 }

@@ -1,5 +1,6 @@
 import path from 'path'
 import gulp from 'gulp'
+import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
 import { compiler, devCompiler } from './compilers/styleCompilers'
 import { isDevelopment, isProduction } from '@shared/mode'
@@ -43,8 +44,8 @@ export const styles: TaskFunction = function styles(
     const stylesCompiler = devCompiler(stylesGlob, outputDir)
     const stylesPageCompiler = devCompiler(stylesPagesGlob, outputPagesDir)
 
-    gulp.watch([stylesGlob, `!${stylesPagesGlob}`], stylesCompiler)
-    gulp.watch([stylesPagesGlob, `!${stylesGlob}`], stylesPageCompiler)
+    watcher([stylesGlob, `!${stylesPagesGlob}`], stylesCompiler)
+    watcher([stylesPagesGlob, `!${stylesGlob}`], stylesPageCompiler)
     return
   }
 }

@@ -1,5 +1,6 @@
 import path from 'path'
 import gulp from 'gulp'
+import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
 import { compiler, devCompiler } from './compilers/htmlCompilers'
 import { isDevelopment, isProduction } from '@shared/mode'
@@ -26,8 +27,9 @@ export const html: TaskFunction = function html(done: TaskFunctionCallback) {
   if (isDevelopment()) {
     const pagesCompiler = devCompiler(viewsPagesGlob, viewsOutputDir)
 
-    gulp.watch([viewsGlob, `!${viewsPagesGlob}`], pagesCompiler)
-    gulp.watch(viewsPagesGlob, pagesCompiler)
+    watcher([viewsGlob, `!${viewsPagesGlob}`], pagesCompiler)
+    watcher(viewsPagesGlob, pagesCompiler)
+
     return
   }
 }

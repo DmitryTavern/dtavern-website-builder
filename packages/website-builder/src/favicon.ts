@@ -1,5 +1,6 @@
 import path from 'path'
 import gulp from 'gulp'
+import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
 import { isDevelopment, isProduction } from '@shared/mode'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
@@ -38,7 +39,7 @@ export const favicon: TaskFunction = function favicon(
   if (isDevelopment()) {
     const faviconCompiler = devCompiler(faviconGlob, faviconOutputDir)
 
-    gulp.watch(faviconGlob, faviconCompiler)
+    watcher(faviconGlob, faviconCompiler)
     return
   }
 }

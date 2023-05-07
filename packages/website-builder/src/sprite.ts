@@ -1,5 +1,6 @@
 import path from 'path'
 import gulp from 'gulp'
+import { watcher } from './watchers/watcher'
 import { environment } from '@shared/environment'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
 import { isDevelopment, isProduction } from '@shared/mode'
@@ -30,13 +31,13 @@ export const sprite: TaskFunction = function sprite(
 
   const spriteCompiler = compiler(spriteGlob, spriteOutputDir)
 
-  if (isDevelopment()) {
-    gulp.watch(spriteGlob, spriteCompiler)
+  if (isProduction()) {
+    gulp.series(spriteCompiler)(done)
     return
   }
 
-  if (isProduction()) {
-    gulp.series(spriteCompiler)(done)
+  if (isDevelopment()) {
+    watcher(spriteGlob, spriteCompiler)
     return
   }
 }
