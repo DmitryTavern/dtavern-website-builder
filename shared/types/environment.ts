@@ -13,12 +13,24 @@ export interface Environment {
   sourceDir: string
 
   /**
-   * Defines project build settings.
+   * Specifies the output path of the build artifacts relative
+   * to the project root.
    */
-  build: {
+  outputDir: string
+
+  /**
+   * Defines settings for processing html/pug files.
+   */
+  html: {
     /**
-     * Specifies the output path of the build artifacts relative
-     * to the project root.
+     * Defines a directory path that will store all the project
+     * pages.
+     */
+    sourceDir: string
+
+    /**
+     * Specifies the output path of the html build artifacts
+     * relative to the project root.
      */
     outputDir: string
   }

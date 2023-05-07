@@ -17,20 +17,14 @@ const argvs = process.argv.slice(2)
 
 const script = argvs[0]
 
-const modeArg = argvs[1]
-  ? argvs[1]
-  : script == 'build'
-  ? '--production'
-  : '--development'
-
-const mode = modeArg == '--production' ? 'production' : 'development'
+const gulpmode = script === 'build' ? 'production' : 'development'
 
 const gulpfile = path.join(__dirname, '..', 'dist', 'gulpfile.js')
 
 const result = spawn.sync(
   'cross-env',
   [
-    `NODE_ENV=${mode}`,
+    `NODE_ENV=${gulpmode}`,
     'npx',
     'gulp',
     script,
