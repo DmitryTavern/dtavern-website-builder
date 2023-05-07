@@ -13,26 +13,13 @@ const path = require('path')
 
 const spawn = require('cross-spawn')
 
-const argvs = process.argv.slice(2)
-
-const script = argvs[0]
-
-const gulpmode = script === 'build' ? 'production' : 'development'
+const scripts = process.argv.slice(2)
 
 const gulpfile = path.join(__dirname, '..', 'dist', 'gulpfile.js')
 
 const result = spawn.sync(
-  'cross-env',
-  [
-    `NODE_ENV=${gulpmode}`,
-    'npx',
-    'gulp',
-    script,
-    '--gulpfile',
-    gulpfile,
-    '--cwd',
-    process.cwd(),
-  ],
+  'npx',
+  ['gulp', ...scripts, '--gulpfile', gulpfile, '--cwd', process.cwd()],
   {
     stdio: 'inherit',
   }

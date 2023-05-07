@@ -1,12 +1,12 @@
 import fs from 'fs'
+import gulp from 'gulp'
 import { resolveOutput } from '@shared/resolveOutput'
-import { TaskFunction, TaskFunctionCallback } from 'gulp'
 
 /**
- * Function for clean old build.
- * @param done gulp TaskFunctionCallback
+ *
+ * @param done
  */
-export const clean: TaskFunction = function clean(done: TaskFunctionCallback) {
+export const clean: gulp.TaskFunction = function clean(done) {
   const outputDir = resolveOutput('./')
 
   if (fs.existsSync(outputDir)) {

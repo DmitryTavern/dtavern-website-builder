@@ -5,29 +5,26 @@ import { watcher } from './watchers/watcher'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/htmlCompilers'
-import { isDevelopment, isProduction } from '@shared/mode'
-import { TaskFunction, TaskFunctionCallback } from 'gulp'
+
+const sourceDir = resolveSource(env.html.sourceDir)
+const outputDir = resolveOutput(env.html.outputDir)
+const viewsGlob = path.join(outputDir, '**', '*.pug')
+const viewsPagesGlob = path.join(sourceDir, '*.pug')
 
 /**
- * Function for html processing.
+ *
  * @param done gulp TaskFunctionCallback
  */
-export const html: TaskFunction = function html(done: TaskFunctionCallback) {
-  const sourceDir = resolveSource(env.html.sourceDir)
-  const outputDir = resolveOutput(env.html.outputDir)
-  const viewsGlob = path.join(outputDir, '**', '*.pug')
-  const viewsPagesGlob = path.join(sourceDir, '*.pug')
+export const htmlBuild: gulp.TaskFunction = function html(done) {
+  gulp.series(compiler(viewsPagesGlob, outputDir))(done)
+}
 
-  if (isProduction()) {
-    const pagesCompiler = compiler(viewsPagesGlob, outputDir)
-    gulp.series(pagesCompiler)(done)
-    return
-  }
+/**
+ *
+ */
+export const htmlStart: gulp.TaskFunction = function html() {
+  const fn = devCompiler(viewsPagesGlob, outputDir)
 
-  if (isDevelopment()) {
-    const pagesCompiler = devCompiler(viewsPagesGlob, outputDir)
-    watcher([viewsGlob, `!${viewsPagesGlob}`], pagesCompiler)
-    watcher(viewsPagesGlob, pagesCompiler)
-    return
-  }
+  watcher([viewsGlob, `!${viewsPagesGlob}`], fn)
+  watcher(viewsPagesGlob, fn)
 }

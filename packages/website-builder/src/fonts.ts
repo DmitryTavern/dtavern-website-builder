@@ -4,28 +4,24 @@ import { env } from '@shared/environment'
 import { watcher } from './watchers/watcher'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
-import { isDevelopment, isProduction } from '@shared/mode'
-import { TaskFunction, TaskFunctionCallback } from 'gulp'
 import { compiler, devCompiler } from './compilers/fontsCompilers'
 
+const sourceDir = resolveSource(env.fonts.sourceDir)
+const outputDir = resolveOutput(env.fonts.outputDir)
+const fontsGlob = path.join(sourceDir, '**', '*.*')
+
 /**
- * Function for fonts processing.
- * @param done gulp TaskFunctionCallback
+ * @param done
  */
-export const fonts: TaskFunction = function fonts(done: TaskFunctionCallback) {
-  const sourceDir = resolveSource(env.fonts.sourceDir)
-  const outputDir = resolveOutput(env.fonts.outputDir)
-  const fontsGlob = path.join(sourceDir, '**', '*.*')
+export const fontsBuild: gulp.TaskFunction = function fonts(done) {
+  gulp.series(compiler(fontsGlob, outputDir))(done)
+}
 
-  if (isProduction()) {
-    const fontsCompiler = compiler(fontsGlob, outputDir)
-    gulp.series(fontsCompiler)(done)
-    return
-  }
+/**
+ *
+ */
+export const fontsStart: gulp.TaskFunction = function fonts() {
+  const fn = devCompiler(fontsGlob, outputDir)
 
-  if (isDevelopment()) {
-    const fontsCompiler = devCompiler(fontsGlob, outputDir)
-    watcher(fontsGlob, fontsCompiler)
-    return
-  }
+  watcher(fontsGlob, fn)
 }

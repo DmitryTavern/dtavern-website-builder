@@ -5,35 +5,31 @@ import { watcher } from './watchers/watcher'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/styleCompilers'
-import { isDevelopment, isProduction } from '@shared/mode'
-import { TaskFunction, TaskFunctionCallback } from 'gulp'
+
+const sourceDir = resolveSource(env.styles.sourceDir)
+const outputDir = resolveOutput(env.styles.outputDir)
+const sourcePagesDir = resolveSource(env.styles.sourcePagesDir)
+const outputPagesDir = resolveOutput(env.styles.outputPagesDir)
+const stylesGlob = path.join(sourceDir, '**', '*.scss')
+const stylesPagesGlob = path.join(sourcePagesDir, '**', '*.scss')
 
 /**
- * Function for styles processing.
  * @param done gulp TaskFunctionCallback
  */
-export const styles: TaskFunction = function styles(
-  done: TaskFunctionCallback
-) {
-  const sourceDir = resolveSource(env.styles.sourceDir)
-  const outputDir = resolveOutput(env.styles.outputDir)
-  const sourcePagesDir = resolveSource(env.styles.sourcePagesDir)
-  const outputPagesDir = resolveOutput(env.styles.outputPagesDir)
-  const stylesGlob = path.join(sourceDir, '**', '*.scss')
-  const stylesPagesGlob = path.join(sourcePagesDir, '**', '*.scss')
+export const stylesBuild: gulp.TaskFunction = function styles(done) {
+  const fn = compiler(stylesGlob, outputDir)
+  const fnPages = compiler(stylesPagesGlob, outputPagesDir)
 
-  if (isProduction()) {
-    const stylesCompiler = compiler(stylesGlob, outputDir)
-    const stylesPageCompiler = compiler(stylesPagesGlob, outputPagesDir)
-    gulp.series(stylesCompiler, stylesPageCompiler)(done)
-    return
-  }
+  gulp.series(fn, fnPages)(done)
+}
 
-  if (isDevelopment()) {
-    const stylesCompiler = devCompiler(stylesGlob, outputDir)
-    const stylesPageCompiler = devCompiler(stylesPagesGlob, outputPagesDir)
-    watcher([stylesGlob, `!${stylesPagesGlob}`], stylesCompiler)
-    watcher([stylesPagesGlob, `!${stylesGlob}`], stylesPageCompiler)
-    return
-  }
+/**
+ *
+ */
+export const stylesStart: gulp.TaskFunction = function styles() {
+  const fn = devCompiler(stylesGlob, outputDir)
+  const fnPages = devCompiler(stylesPagesGlob, outputPagesDir)
+
+  watcher([stylesGlob, `!${stylesPagesGlob}`], fn)
+  watcher([stylesPagesGlob, `!${stylesGlob}`], fnPages)
 }

@@ -1,36 +1,64 @@
-import { setup } from '@shared/environment'
-import { series, parallel } from 'gulp'
-
-import { html } from './html'
+import '@shared/environment'
+import gulp from 'gulp'
 import { clean } from './clean'
-import { fonts } from './fonts'
-import { styles } from './styles'
-import { sprite } from './sprite'
-import { images } from './images'
-import { scripts } from './scripts'
-import { favicon } from './favicon'
-import { devserver } from './devserver'
+import { server } from './server'
+import { htmlBuild, htmlStart } from './html'
+import { fontsBuild, fontsStart } from './fonts'
+import { stylesBuild, stylesStart } from './styles'
+import { imagesBuild, imagesStart } from './images'
+import { scriptsBuild, scriptsStart } from './scripts'
+import { spriteBuild, spriteStart } from './sprite'
+import { faviconBuild, faviconStart } from './favicon'
 
-setup()
+gulp.task('clean', clean)
 
-/**
- *
- */
-export const start = series(
-  clean,
-  parallel(html, styles, scripts, images, fonts, sprite, devserver, favicon)
+gulp.task('server', server)
+
+gulp.task('build:html', htmlBuild)
+gulp.task('build:styles', stylesBuild)
+gulp.task('build:scripts', scriptsBuild)
+gulp.task('build:images', imagesBuild)
+gulp.task('build:sprite', spriteBuild)
+gulp.task('build:fonts', fontsBuild)
+gulp.task('build:favicon', faviconBuild)
+
+gulp.task('start:html', htmlStart)
+gulp.task('start:styles', stylesStart)
+gulp.task('start:scripts', scriptsStart)
+gulp.task('start:images', imagesStart)
+gulp.task('start:sprite', spriteStart)
+gulp.task('start:fonts', fontsStart)
+gulp.task('start:favicon', faviconStart)
+
+gulp.task(
+  'build',
+  gulp.series(
+    'clean',
+    gulp.parallel(
+      'build:html',
+      'build:styles',
+      'build:scripts',
+      'build:images',
+      'build:sprite',
+      'build:fonts',
+      'build:favicon'
+    )
+  )
 )
 
-/**
- *
- */
-export const build = series(
-  clean,
-  html,
-  styles,
-  scripts,
-  images,
-  fonts,
-  sprite,
-  favicon
+gulp.task(
+  'start',
+  gulp.series(
+    'clean',
+    gulp.parallel(
+      'start:html',
+      'start:styles',
+      'start:scripts',
+      'start:images',
+      'start:sprite',
+      'start:fonts',
+      'start:favicon',
+      'server'
+    )
+  )
 )
