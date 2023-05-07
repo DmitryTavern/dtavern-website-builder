@@ -4,6 +4,7 @@ import { series, parallel } from 'gulp'
  * Gulp tasks
  */
 import { html } from './html'
+import { clean } from './clean'
 import { fonts } from './fonts'
 import { styles } from './styles'
 import { sprite } from './sprite'
@@ -14,17 +15,12 @@ import { devserver } from './devserver'
 /**
  *
  */
-export const start = parallel(
-  html,
-  styles,
-  scripts,
-  images,
-  fonts,
-  sprite,
-  devserver
+export const start = series(
+  clean,
+  parallel(html, styles, scripts, images, fonts, sprite, devserver)
 )
 
 /**
  *
  */
-export const build = series(html, styles, scripts, images, fonts, sprite)
+export const build = series(clean, html, styles, scripts, images, fonts, sprite)
