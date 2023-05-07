@@ -1,8 +1,6 @@
+import { setup } from '@shared/environment'
 import { series, parallel } from 'gulp'
 
-/**
- * Gulp tasks
- */
 import { html } from './html'
 import { clean } from './clean'
 import { fonts } from './fonts'
@@ -12,6 +10,8 @@ import { images } from './images'
 import { scripts } from './scripts'
 import { favicon } from './favicon'
 import { devserver } from './devserver'
+
+setup()
 
 /**
  *

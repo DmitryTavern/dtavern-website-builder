@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
+import { env } from '@shared/environment'
 import { watcher } from './watchers/watcher'
-import { environment } from '@shared/environment'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { isDevelopment, isProduction } from '@shared/mode'
@@ -15,7 +15,6 @@ import { compiler, devCompiler } from './compilers/faviconCompilers'
 export const favicon: TaskFunction = function favicon(
   done: TaskFunctionCallback
 ) {
-  const env = environment()
   const sourceDir = resolveSource(env.favicon.sourceDir)
   const outputDir = resolveOutput(env.favicon.outputDir)
   const faviconGlob = path.join(sourceDir, '**', '*.*')

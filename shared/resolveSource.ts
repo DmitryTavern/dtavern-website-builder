@@ -1,5 +1,5 @@
 import path from 'path'
-import { environment } from './environment'
+import { env } from './environment'
 
 /**
  *
@@ -7,6 +7,5 @@ import { environment } from './environment'
  * @returns
  */
 export const resolveSource = (...paths: string[]) => {
-  const env = environment()
   return path.join(env.root, env.sourceDir, ...paths)
 }

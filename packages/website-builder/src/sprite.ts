@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
+import { env } from '@shared/environment'
 import { watcher } from './watchers/watcher'
-import { environment } from '@shared/environment'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { TaskFunction, TaskFunctionCallback } from 'gulp'
@@ -15,7 +15,6 @@ import { compiler } from './compilers/spriteCompilers'
 export const sprite: TaskFunction = function sprite(
   done: TaskFunctionCallback
 ) {
-  const env = environment()
   const sourceDir = resolveSource(env.sprite.sourceDir)
   const outputDir = resolveOutput(env.sprite.outputDir)
   const spriteGlob = path.join(sourceDir, '*.svg')

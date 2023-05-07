@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
+import { env } from '@shared/environment'
 import { watcher } from './watchers/watcher'
-import { environment } from '@shared/environment'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/htmlCompilers'
@@ -13,7 +13,6 @@ import { TaskFunction, TaskFunctionCallback } from 'gulp'
  * @param done gulp TaskFunctionCallback
  */
 export const html: TaskFunction = function html(done: TaskFunctionCallback) {
-  const env = environment()
   const sourceDir = resolveSource(env.html.sourceDir)
   const outputDir = resolveOutput(env.html.outputDir)
   const viewsGlob = path.join(outputDir, '**', '*.pug')

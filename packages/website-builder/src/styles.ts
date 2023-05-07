@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
+import { env } from '@shared/environment'
 import { watcher } from './watchers/watcher'
-import { environment } from '@shared/environment'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/styleCompilers'
@@ -15,7 +15,6 @@ import { TaskFunction, TaskFunctionCallback } from 'gulp'
 export const styles: TaskFunction = function styles(
   done: TaskFunctionCallback
 ) {
-  const env = environment()
   const sourceDir = resolveSource(env.styles.sourceDir)
   const outputDir = resolveOutput(env.styles.outputDir)
   const sourcePagesDir = resolveSource(env.styles.sourcePagesDir)

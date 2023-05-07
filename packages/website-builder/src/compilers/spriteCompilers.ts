@@ -3,8 +3,8 @@ import gulp from 'gulp'
 import server from 'browser-sync'
 import plumber from 'gulp-plumber'
 import svgSprite from 'gulp-svg-sprite'
+import { env } from '@shared/environment'
 import { Compiler } from '../../types'
-import { environment } from '@shared/environment'
 
 /**
  *
@@ -13,8 +13,6 @@ import { environment } from '@shared/environment'
  * @param config
  */
 export const compiler: Compiler = (input, output) => () => {
-  const env = environment()
-
   return gulp
     .src(input)
     .pipe(plumber())

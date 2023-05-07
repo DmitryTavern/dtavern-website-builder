@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
+import { env } from '@shared/environment'
 import { watcher } from './watchers/watcher'
-import { environment } from '@shared/environment'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { isDevelopment, isProduction } from '@shared/mode'
@@ -20,7 +20,6 @@ import {
 export const scripts: TaskFunction = function scripts(
   done: TaskFunctionCallback
 ) {
-  const env = environment()
   const sourceDir = resolveSource(env.scripts.sourceDir)
   const sourcePagesDir = resolveSource(env.scripts.sourcePagesDir)
   const sourceVendorDir = resolveSource(env.scripts.sourceVendorDir)
