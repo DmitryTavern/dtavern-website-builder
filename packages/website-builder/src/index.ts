@@ -9,11 +9,20 @@ import { styles } from './styles'
 import { sprite } from './sprite'
 import { images } from './images'
 import { scripts } from './scripts'
+import { devserver } from './devserver'
 
 /**
  *
  */
-export const start = parallel(html, styles, scripts, images, fonts, sprite)
+export const start = parallel(
+  html,
+  styles,
+  scripts,
+  images,
+  fonts,
+  sprite,
+  devserver
+)
 
 /**
  *

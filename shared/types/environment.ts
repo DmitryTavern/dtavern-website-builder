@@ -1,3 +1,5 @@
+import browserSync from 'browser-sync'
+
 export interface Environment {
   /**
    * Specifies the root directory of the entire project.
@@ -17,6 +19,11 @@ export interface Environment {
    * to the project root.
    */
   outputDir: string
+
+  /**
+   * Specifies the dev server options.
+   */
+  devserver: browserSync.Options
 
   /**
    * Defines settings for processing html/pug files.
