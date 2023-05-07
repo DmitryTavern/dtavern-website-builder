@@ -165,4 +165,19 @@ export interface Environment {
      */
     outputDir: string
   }
+
+  /**
+   * Defines settings for favicon processing.
+   */
+  favicon: {
+    /**
+     * Defines a directory path that will store favicon assets.
+     */
+    sourceDir: string
+
+    /**
+     * Specifies the output path of the favicon build artifacts.
+     */
+    outputDir: string
+  }
 }
