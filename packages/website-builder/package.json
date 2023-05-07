@@ -12,10 +12,10 @@
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs"
   },
   "dependencies": {
-    "@types/gulp-autoprefixer": "^0.0.33",
-    "@types/gulp-sass": "^5.0.0",
+    "@rollup/plugin-terser": "^0.4.1",
     "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
+    "glob": "^10.2.2",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-cssnano": "^2.1.3",
@@ -25,14 +25,19 @@
     "gulp-pug": "^5.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^5.1.0",
+    "gulp-uglify": "^3.0.2",
+    "rollup": "^3.21.5",
     "sass": "^1.62.1"
   },
   "devDependencies": {
     "@types/browser-sync": "^2.27.0",
     "@types/gulp": "^4.0.10",
+    "@types/gulp-autoprefixer": "^0.0.33",
     "@types/gulp-html-prettify": "^0.0.2",
     "@types/gulp-plumber": "^0.0.33",
     "@types/gulp-rename": "^2.0.1",
+    "@types/gulp-sass": "^5.0.0",
+    "@types/gulp-uglify": "^3.0.7",
     "browser-sync": "^2.29.1"
   }
 }

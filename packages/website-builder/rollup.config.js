@@ -3,6 +3,8 @@ import shared from '../../bundle.config'
 const globals = {
   fs: 'fs',
   path: 'path',
+
+  // Gulp core
   gulp: 'gulp',
   'gulp-rename': 'gulp-rename',
   'browser-sync': 'browser-sync',
@@ -18,6 +20,12 @@ const globals = {
   'gulp-cssnano': 'gulp-cssnano',
   'gulp-autoprefixer': 'gulp-autoprefixer',
   'gulp-group-css-media-queries': 'gulp-group-css-media-queries',
+
+  // Scripts
+  glob: 'glob',
+  rollup: 'rollup',
+  'gulp-uglify': 'gulp-uglify',
+  '@rollup/plugin-terser': '@rollup/plugin-terser',
 }
 
 export default shared.bundle({

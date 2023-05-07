@@ -65,4 +65,47 @@ export interface Environment {
      */
     outputPagesDir: string
   }
+
+  /**
+   * Defines settings for processing js files.
+   */
+  scripts: {
+    /**
+     * Specifies the path to the directory where all global scripts
+     * will be stored.
+     * Note: page scripts and library scripts are not included and
+     * are specified separately.
+     */
+    sourceDir: string
+
+    /**
+     * Specifies the path to the directory where the scripts for
+     * the pages will be stored.
+     */
+    sourcePagesDir: string
+
+    /**
+     * Specifies the path to the directory where the library scripts
+     * will be stored.
+     */
+    sourceVendorDir: string
+
+    /**
+     * Specifies the output path for artifacts that come out of
+     * the global scripts assembly.
+     */
+    outputDir: string
+
+    /**
+     * Specifies the output path for artifacts that come out of
+     * the scripts assembly for each page.
+     */
+    outputPagesDir: string
+
+    /**
+     * Specifies the output path for artifacts that come out of
+     * the scripts assembly for libraries.
+     */
+    outputVendorDir: string
+  }
 }
