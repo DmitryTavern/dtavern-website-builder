@@ -12,6 +12,7 @@
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs"
   },
   "dependencies": {
+    "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
     "gulp": "^4.0.2"
   },

@@ -13,13 +13,36 @@ const path = require('path')
 
 const spawn = require('cross-spawn')
 
-const script = process.argv.slice(2)[0]
+const argvs = process.argv.slice(2)
+
+const script = argvs[0]
+
+const modeArg = argvs[1]
+  ? argvs[1]
+  : script == 'build'
+  ? '--production'
+  : '--development'
+
+const mode = modeArg == '--production' ? 'production' : 'development'
 
 const gulpfile = path.join(__dirname, '..', 'dist', 'gulpfile.js')
 
-const result = spawn.sync('npx', ['gulp', script, '--gulpfile', gulpfile], {
-  stdio: 'inherit',
-})
+const result = spawn.sync(
+  'cross-env',
+  [
+    `NODE_ENV=${mode}`,
+    'npx',
+    'gulp',
+    script,
+    '--gulpfile',
+    gulpfile,
+    '--cwd',
+    process.cwd(),
+  ],
+  {
+    stdio: 'inherit',
+  }
+)
 
 if (result.signal) {
   if (result.signal === 'SIGKILL') {

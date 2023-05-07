@@ -1,6 +1,8 @@
 import shared from '../../bundle.config'
 
 const globals = {
+  fs: 'fs',
+  path: 'path',
   gulp: 'gulp',
 }
 
