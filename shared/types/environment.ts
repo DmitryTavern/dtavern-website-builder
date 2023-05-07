@@ -34,4 +34,35 @@ export interface Environment {
      */
     outputDir: string
   }
+
+  /**
+   * Defines settings for processing css/sass/scss files.
+   */
+  styles: {
+    /**
+     * Specifies the path to the directory where all global style
+     * files will be stored.
+     * Note: page files and library files are not included and
+     * are specified separately.
+     */
+    sourceDir: string
+
+    /**
+     * Specifies the path to the directory where the style files
+     * for the pages will be stored.
+     */
+    sourcePagesDir: string
+
+    /**
+     * Specifies the output path for artifacts that come out of
+     * the global styles assembly.
+     */
+    outputDir: string
+
+    /**
+     * Specifies the output path for artifacts that come out of
+     * the css assembly for each page.
+     */
+    outputPagesDir: string
+  }
 }

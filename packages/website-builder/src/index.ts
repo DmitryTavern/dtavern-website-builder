@@ -4,13 +4,14 @@ import { series, parallel } from 'gulp'
  * Gulp tasks
  */
 import { html } from './html'
-
-/**
- * 
- */
-export const start = series(html)
+import { styles } from './styles'
 
 /**
  *
  */
-export const build = parallel(html)
+export const start = parallel(html, styles)
+
+/**
+ *
+ */
+export const build = series(html, styles)
