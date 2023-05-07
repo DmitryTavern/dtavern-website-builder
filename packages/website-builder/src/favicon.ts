@@ -1,44 +1,12 @@
-/**
- * Types
- */
-import { Compiler } from '../types'
-import { TaskFunction, TaskFunctionCallback } from 'gulp'
-
-/**
- * Utilities
- */
 import path from 'path'
+import gulp from 'gulp'
 import { environment } from '@shared/environment'
 import { isDevelopment, isProduction } from '@shared/mode'
-
-/**
- * Gulp
- */
-import gulp from 'gulp'
-import server from 'browser-sync'
-import plumber from 'gulp-plumber'
-
-/**
- * Key function for processing favicon.
- *
- * @param input glob of the gulp src
- * @param output directory for output artifacts
- * @returns gulp TaskFunction
- */
-const compiler: Compiler = (input, output) => () => {
-  if (isDevelopment())
-    return gulp
-      .src(input)
-      .pipe(plumber())
-      .pipe(gulp.dest(output))
-      .pipe(server.reload({ stream: true }))
-
-  if (isProduction()) return gulp.src(input).pipe(gulp.dest(output))
-}
+import { TaskFunction, TaskFunctionCallback } from 'gulp'
+import { compiler, devCompiler } from './compilers/faviconCompilers'
 
 /**
  * Function for favicon processing.
- *
  * @param done gulp TaskFunctionCallback
  */
 export const favicon: TaskFunction = function favicon(
@@ -60,15 +28,17 @@ export const favicon: TaskFunction = function favicon(
 
   const faviconGlob = path.join(faviconSourceDir, '**', '*.*')
 
-  const faviconCompiler = compiler(faviconGlob, faviconOutputDir)
+  if (isProduction()) {
+    const faviconCompiler = compiler(faviconGlob, faviconOutputDir)
 
-  if (isDevelopment()) {
-    gulp.watch(faviconGlob, faviconCompiler)
+    gulp.series(faviconCompiler)(done)
     return
   }
 
-  if (isProduction()) {
-    gulp.series(faviconCompiler)(done)
+  if (isDevelopment()) {
+    const faviconCompiler = devCompiler(faviconGlob, faviconOutputDir)
+
+    gulp.watch(faviconGlob, faviconCompiler)
     return
   }
 }

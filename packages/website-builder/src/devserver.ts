@@ -1,19 +1,8 @@
-/**
- * Types
- */
-import { TaskFunction, TaskFunctionCallback } from 'gulp'
-
-/**
- * Utilities
- */
 import path from 'path'
-import { environment } from '@shared/environment'
-import { isDevelopment, isProduction } from '@shared/mode'
-
-/**
- * Gulp
- */
 import server from 'browser-sync'
+import { environment } from '@shared/environment'
+import { TaskFunction, TaskFunctionCallback } from 'gulp'
+import { isDevelopment, isProduction } from '@shared/mode'
 
 /**
  * Caching the browserSync instance.
@@ -24,7 +13,6 @@ let browserSync: server.BrowserSyncInstance | undefined = isDevelopment()
 
 /**
  * Function for starting dev server.
- *
  * @param done gulp TaskFunctionCallback
  */
 export const devserver: TaskFunction = function devserver(

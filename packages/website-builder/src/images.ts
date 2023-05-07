@@ -1,77 +1,14 @@
-/**
- * Types
- */
-import { Compiler } from '../types'
-import { TaskFunction, TaskFunctionCallback } from 'gulp'
-
-/**
- * Utilities
- */
+import gulp from 'gulp'
 import path from 'path'
 import { environment } from '@shared/environment'
 import { isDevelopment, isProduction } from '@shared/mode'
-
-/**
- * Gulp
- */
-import gulp from 'gulp'
-import webp from 'gulp-webp'
-import image from 'gulp-image'
-import server from 'browser-sync'
-import plumber from 'gulp-plumber'
-
-/**
- * Key function for processing images.
- *
- * @param input glob of the gulp src
- * @param output directory for output artifacts
- * @returns gulp TaskFunction
- */
-const pngCompiler: Compiler = (input, output) => () => {
-  if (isDevelopment())
-    return gulp
-      .src(input)
-      .pipe(plumber())
-      .pipe(gulp.dest(output))
-      .pipe(server.reload({ stream: true }))
-
-  if (isProduction())
-    return gulp
-      .src(input)
-      .pipe(
-        image({
-          svgo: false,
-        })
-      )
-      .pipe(gulp.dest(output))
-}
-
-/**
- * Key function for processing images (webp).
- *
- * @param input glob of the gulp src
- * @param output directory for output artifacts
- * @returns gulp TaskFunction
- */
-const webpCompiler: Compiler = (input, output) => () => {
-  if (isDevelopment())
-    return gulp
-      .src(input)
-      .pipe(plumber())
-      .pipe(webp())
-      .pipe(gulp.dest(output))
-      .pipe(server.reload({ stream: true }))
-
-  if (isProduction())
-    return gulp
-      .src(input)
-      .pipe(
-        webp({
-          quality: 60,
-        })
-      )
-      .pipe(gulp.dest(output))
-}
+import { TaskFunction, TaskFunctionCallback } from 'gulp'
+import {
+  compiler,
+  devCompiler,
+  webpCompiler,
+  devWebpCompiler,
+} from './compilers/imageCompilers'
 
 /**
  * Function for html processing.
@@ -98,17 +35,20 @@ export const images: TaskFunction = function images(
   const pngGlob = path.join(imagesSourceDir, '**', '*.*')
   const webpGlob = path.join(imagesSourceDir, '**', '*.+(png|jpg|jpeg)')
 
-  const _pngCompiler = pngCompiler(pngGlob, imagesOutputDir)
-  const _webpCompiler = webpCompiler(webpGlob, imagesOutputDir)
+  if (isProduction()) {
+    const _pngCompiler = compiler(pngGlob, imagesOutputDir)
+    const _webpCompiler = webpCompiler(webpGlob, imagesOutputDir)
 
-  if (isDevelopment()) {
-    gulp.watch(pngGlob, _pngCompiler)
-    gulp.watch(webpGlob, _webpCompiler)
+    gulp.series(_pngCompiler, _webpCompiler)(done)
     return
   }
 
-  if (isProduction()) {
-    gulp.series(_pngCompiler, _webpCompiler)(done)
+  if (isDevelopment()) {
+    const _pngCompiler = devCompiler(pngGlob, imagesOutputDir)
+    const _webpCompiler = devWebpCompiler(webpGlob, imagesOutputDir)
+
+    gulp.watch(pngGlob, _pngCompiler)
+    gulp.watch(webpGlob, _webpCompiler)
     return
   }
 }
