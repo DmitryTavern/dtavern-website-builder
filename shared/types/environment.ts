@@ -138,4 +138,24 @@ export interface Environment {
      */
     outputDir: string
   }
+
+  /**
+   * Defines settings for sprite processing.
+   */
+  sprite: {
+    /**
+     * Defines sprite filename.
+     */
+    filename: string
+
+    /**
+     * Defines a directory path that will store sprite icons.
+     */
+    sourceDir: string
+
+    /**
+     * Specifies the output path of the sprite build artifacts.
+     */
+    outputDir: string
+  }
 }

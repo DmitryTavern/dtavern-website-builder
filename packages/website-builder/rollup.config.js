@@ -30,6 +30,9 @@ const globals = {
   // Images
   'gulp-webp': 'gulp-webp',
   'gulp-image': 'gulp-image',
+
+  // Sprite
+  'gulp-svg-sprite': 'gulp-svg-sprite',
 }
 
 export default shared.bundle({
