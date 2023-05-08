@@ -9,10 +9,9 @@ import { resolveApp } from '@shared/resolveApp'
 let browserSync: bsserver.BrowserSyncInstance | undefined
 
 /**
- * Function for starting dev server.
- * @param done gulp TaskFunctionCallback
+ *
  */
-export const server: gulp.TaskFunction = function server(done) {
+export const server: gulp.TaskFunction = (done) => {
   if (!browserSync) browserSync = bsserver.create()
 
   const outputDir = resolveApp(env.outputDir)

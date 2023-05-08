@@ -5,9 +5,8 @@ import { resolveApp } from '@shared/resolveApp'
 
 /**
  *
- * @param done
  */
-export const clean: gulp.TaskFunction = function clean(done) {
+export const clean: gulp.TaskFunction = (done) => {
   const outputDir = resolveApp(env.outputDir)
 
   if (fs.existsSync(outputDir)) {

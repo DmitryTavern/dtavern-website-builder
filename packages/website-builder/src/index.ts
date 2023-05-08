@@ -1,34 +1,34 @@
 import '@shared/environment'
 import gulp from 'gulp'
-import { clean } from './clean'
-import { server } from './server'
-import { htmlBuild, htmlStart } from './html'
-import { fontsBuild, fontsStart } from './fonts'
-import { stylesBuild, stylesStart } from './styles'
-import { imagesBuild, imagesStart } from './images'
-import { scriptsBuild, scriptsStart } from './scripts'
-import { spriteBuild, spriteStart } from './sprite'
-import { faviconBuild, faviconStart } from './favicon'
+import { clean } from './tasks/clean'
+import { server } from './tasks/server'
+import * as html from './tasks/html'
+import * as fonts from './tasks/fonts'
+import * as styles from './tasks/styles'
+import * as images from './tasks/images'
+import * as sprite from './tasks/sprite'
+import * as scripts from './tasks/scripts'
+import * as favicon from './tasks/favicon'
 
 gulp.task('clean', clean)
 
 gulp.task('server', server)
 
-gulp.task('build:html', htmlBuild)
-gulp.task('build:styles', stylesBuild)
-gulp.task('build:scripts', scriptsBuild)
-gulp.task('build:images', imagesBuild)
-gulp.task('build:sprite', spriteBuild)
-gulp.task('build:fonts', fontsBuild)
-gulp.task('build:favicon', faviconBuild)
+gulp.task('build:html', html.build)
+gulp.task('build:fonts', fonts.build)
+gulp.task('build:styles', styles.build)
+gulp.task('build:images', images.build)
+gulp.task('build:sprite', sprite.build)
+gulp.task('build:scripts', scripts.build)
+gulp.task('build:favicon', favicon.build)
 
-gulp.task('start:html', htmlStart)
-gulp.task('start:styles', stylesStart)
-gulp.task('start:scripts', scriptsStart)
-gulp.task('start:images', imagesStart)
-gulp.task('start:sprite', spriteStart)
-gulp.task('start:fonts', fontsStart)
-gulp.task('start:favicon', faviconStart)
+gulp.task('start:html', html.start)
+gulp.task('start:fonts', fonts.start)
+gulp.task('start:styles', styles.start)
+gulp.task('start:images', images.start)
+gulp.task('start:sprite', sprite.start)
+gulp.task('start:scripts', scripts.start)
+gulp.task('start:favicon', favicon.start)
 
 gulp.task(
   'build',

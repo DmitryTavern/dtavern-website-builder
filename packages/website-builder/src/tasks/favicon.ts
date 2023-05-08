@@ -1,27 +1,25 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watch } from './watchers/watch'
+import { watch } from '../watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
-import { compiler, devCompiler } from './compilers/faviconCompilers'
+import { compiler, devCompiler } from '../compilers/faviconCompilers'
 
 const sourceDir = resolveSource(env.favicon.sourceDir)
 const outputDir = resolveOutput(env.favicon.outputDir)
 const faviconGlob = path.join(sourceDir, '**', '*.*')
 
 /**
- * @param done
+ *
  */
-export const faviconBuild: gulp.TaskFunction = function favicon(done) {
+export const build: gulp.TaskFunction = (done) => {
   gulp.series(compiler(faviconGlob, outputDir))(done)
 }
 
 /**
  *
  */
-export const faviconStart: gulp.TaskFunction = function favicon() {
-  const fn = devCompiler(faviconGlob, outputDir)
-
-  watch(faviconGlob, fn)
+export const start: gulp.TaskFunction = () => {
+  watch(faviconGlob, devCompiler(faviconGlob, outputDir))
 }

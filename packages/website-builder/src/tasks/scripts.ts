@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watch } from './watchers/watch'
+import { watch } from '../watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import {
@@ -9,7 +9,7 @@ import {
   devCompiler,
   vendorCompiler,
   devVendorCompiler,
-} from './compilers/scriptCompilers'
+} from '../compilers/scriptCompilers'
 
 const sourceDir = resolveSource(env.scripts.sourceDir)
 const sourcePagesDir = resolveSource(env.scripts.sourcePagesDir)
@@ -40,20 +40,20 @@ const scriptsVendorCompilerGlob = [
 ]
 
 /**
- * @param done gulp TaskFunctionCallback
+ *
  */
-export const scriptsBuild: gulp.TaskFunction = function scripts(done) {
-  const fn = compiler(scriptsCompilerGlob, outputDir)
-  const fnPage = compiler(scriptsPageCompilerGlob, outputPagesDir)
-  const fnVendor = vendorCompiler(scriptsVendorCompilerGlob, outputVendorDir)
-
-  gulp.series(fn, fnPage, fnVendor)(done)
+export const build: gulp.TaskFunction = (done) => {
+  gulp.series(
+    compiler(scriptsCompilerGlob, outputDir),
+    compiler(scriptsPageCompilerGlob, outputPagesDir),
+    vendorCompiler(scriptsVendorCompilerGlob, outputVendorDir)
+  )(done)
 }
 
 /**
- * @param done gulp TaskFunctionCallback
+ *
  */
-export const scriptsStart: gulp.TaskFunction = function scripts() {
+export const start: gulp.TaskFunction = () => {
   const fn = devCompiler(scriptsCompilerGlob, outputDir)
   const fnPage = devCompiler(scriptsPageCompilerGlob, outputPagesDir)
   const fnVendor = devVendorCompiler(scriptsVendorCompilerGlob, outputVendorDir)
