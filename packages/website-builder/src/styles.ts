@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watcher } from './watchers/watcher'
+import { watch } from './watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/styleCompilers'
@@ -30,6 +30,6 @@ export const stylesStart: gulp.TaskFunction = function styles() {
   const fn = devCompiler(stylesGlob, outputDir)
   const fnPages = devCompiler(stylesPagesGlob, outputPagesDir)
 
-  watcher([stylesGlob, `!${stylesPagesGlob}`], fn)
-  watcher([stylesPagesGlob, `!${stylesGlob}`], fnPages)
+  watch([stylesGlob, `!${stylesPagesGlob}`], fn)
+  watch([stylesPagesGlob, `!${stylesGlob}`], fnPages)
 }

@@ -1,5 +1,5 @@
-import { TaskFunction } from 'gulp'
+import gulp from 'gulp'
 
 export interface Compiler {
-  (input: string | string[], output: string): TaskFunction
+  (input: gulp.Globs, output: string): gulp.TaskFunction
 }

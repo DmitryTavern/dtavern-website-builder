@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watcher } from './watchers/watcher'
+import { watch } from './watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler } from './compilers/spriteCompilers'
@@ -24,5 +24,5 @@ export const spriteBuild: gulp.TaskFunction = function sprite(done) {
 export const spriteStart: gulp.TaskFunction = function sprite() {
   const fn = compiler(spriteGlob, outputDir)
 
-  watcher(spriteGlob, fn)
+  watch(spriteGlob, fn)
 }

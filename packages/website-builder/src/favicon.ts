@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watcher } from './watchers/watcher'
+import { watch } from './watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/faviconCompilers'
@@ -23,5 +23,5 @@ export const faviconBuild: gulp.TaskFunction = function favicon(done) {
 export const faviconStart: gulp.TaskFunction = function favicon() {
   const fn = devCompiler(faviconGlob, outputDir)
 
-  watcher(faviconGlob, fn)
+  watch(faviconGlob, fn)
 }

@@ -1,7 +1,7 @@
 import gulp from 'gulp'
 import path from 'path'
 import { env } from '@shared/environment'
-import { watcher } from './watchers/watcher'
+import { watch } from './watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import {
@@ -34,6 +34,6 @@ export const imagesStart: gulp.TaskFunction = function images() {
   const fn = devCompiler(pngGlob, outputDir)
   const webpFn = devWebpCompiler(webpGlob, outputDir)
 
-  watcher(pngGlob, fn)
-  watcher(webpGlob, webpFn)
+  watch(pngGlob, fn)
+  watch(webpGlob, webpFn)
 }

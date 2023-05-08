@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watcher } from './watchers/watcher'
+import { watch } from './watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import { compiler, devCompiler } from './compilers/fontsCompilers'
@@ -23,5 +23,5 @@ export const fontsBuild: gulp.TaskFunction = function fonts(done) {
 export const fontsStart: gulp.TaskFunction = function fonts() {
   const fn = devCompiler(fontsGlob, outputDir)
 
-  watcher(fontsGlob, fn)
+  watch(fontsGlob, fn)
 }

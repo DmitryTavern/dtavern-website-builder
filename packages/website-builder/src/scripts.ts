@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watcher } from './watchers/watcher'
+import { watch } from './watchers/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import {
@@ -58,7 +58,7 @@ export const scriptsStart: gulp.TaskFunction = function scripts() {
   const fnPage = devCompiler(scriptsPageCompilerGlob, outputPagesDir)
   const fnVendor = devVendorCompiler(scriptsVendorCompilerGlob, outputVendorDir)
 
-  watcher(scriptsCompilerGlob, fn)
-  watcher(scriptsPageCompilerGlob, fnPage)
-  watcher(scriptsVendorCompilerGlob, fnVendor)
+  watch(scriptsCompilerGlob, fn)
+  watch(scriptsPageCompilerGlob, fnPage)
+  watch(scriptsVendorCompilerGlob, fnVendor)
 }
