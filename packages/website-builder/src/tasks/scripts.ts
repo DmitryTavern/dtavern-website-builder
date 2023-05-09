@@ -1,7 +1,7 @@
 import path from 'path'
 import gulp from 'gulp'
 import { env } from '@shared/environment'
-import { watch } from '../watchers/watch'
+import { watch } from '../utils/watch'
 import { resolveSource } from '@shared/resolveSource'
 import { resolveOutput } from '@shared/resolveOutput'
 import {
