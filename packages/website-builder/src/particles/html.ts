@@ -15,16 +15,16 @@ const viewsPagesGlob = path.join(sourceDir, '*.pug')
 /**
  *
  */
-export const build: gulp.TaskFunction = (done) => {
+gulp.task('build:html', (done) => {
   gulp.series(compiler(viewsPagesGlob, outputDir))(done)
-}
+})
 
 /**
  *
  */
-export const start: gulp.TaskFunction = () => {
+gulp.task('start:html', () => {
   const fn = devCompiler(viewsPagesGlob, outputDir)
 
   watch([viewsGlob, `!${viewsPagesGlob}`], fn)
   watchViews(viewsPagesGlob, outputDir, devCompiler)
-}
+})

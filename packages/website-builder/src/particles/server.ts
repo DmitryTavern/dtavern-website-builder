@@ -1,18 +1,18 @@
 import gulp from 'gulp'
-import bsserver from 'browser-sync'
+import bsync from 'browser-sync'
 import { env } from '@shared/environment'
 import { resolveApp } from '@shared/resolveApp'
 
 /**
  * Caching the browserSync instance.
  */
-let browserSync: bsserver.BrowserSyncInstance | undefined
+let browserSync: bsync.BrowserSyncInstance | undefined
 
 /**
  *
  */
-export const server: gulp.TaskFunction = (done) => {
-  if (!browserSync) browserSync = bsserver.create()
+gulp.task('server', (done) => {
+  if (!browserSync) browserSync = bsync.create()
 
   const outputDir = resolveApp(env.outputDir)
 
@@ -27,4 +27,4 @@ export const server: gulp.TaskFunction = (done) => {
   browserSync.watch(outputDir).on('change', browserSync.reload)
 
   done()
-}
+})

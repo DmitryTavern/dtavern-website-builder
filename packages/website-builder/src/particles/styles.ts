@@ -17,20 +17,20 @@ const stylesPagesGlob = path.join(sourcePagesDir, '*.scss')
 /**
  *
  */
-export const build: gulp.TaskFunction = (done) => {
+gulp.task('build:styles', (done) => {
   gulp.series(
     compiler(stylesGlob, outputDir),
     compiler(stylesPagesGlob, outputPagesDir)
   )(done)
-}
+})
 
 /**
  *
  */
-export const start: gulp.TaskFunction = () => {
+gulp.task('start:styles', () => {
   const fn = devCompiler(stylesGlob, outputDir)
   const fnPages = devCompiler(stylesPagesGlob, outputPagesDir)
 
   watch(stylesGlob, gulp.series(fn, fnPages))
   watchViews(stylesPagesGlob, outputPagesDir, devCompiler)
-}
+})

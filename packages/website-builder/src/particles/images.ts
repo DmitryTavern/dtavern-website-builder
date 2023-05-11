@@ -19,17 +19,17 @@ const webpGlob = path.join(sourceDir, '**', '*.+(png|jpg|jpeg)')
 /**
  *
  */
-export const build: gulp.TaskFunction = (done) => {
+gulp.task('build:images', (done) => {
   gulp.series(
     compiler(pngGlob, outputDir),
     webpCompiler(webpGlob, outputDir)
   )(done)
-}
+})
 
 /**
  *
  */
-export const start: gulp.TaskFunction = () => {
+gulp.task('start:images', () => {
   watch(pngGlob, devCompiler(pngGlob, outputDir))
   watch(webpGlob, devWebpCompiler(webpGlob, outputDir))
-}
+})

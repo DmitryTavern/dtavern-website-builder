@@ -13,13 +13,13 @@ const fontsGlob = path.join(sourceDir, '**', '*.*')
 /**
  *
  */
-export const build: gulp.TaskFunction = (done) => {
+gulp.task('build:fonts', (done) => {
   gulp.series(compiler(fontsGlob, outputDir))(done)
-}
+})
 
 /**
  *
  */
-export const start: gulp.TaskFunction = () => {
+gulp.task('start:fonts', () => {
   watch(fontsGlob, devCompiler(fontsGlob, outputDir))
-}
+})

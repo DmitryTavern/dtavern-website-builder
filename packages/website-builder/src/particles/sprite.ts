@@ -13,13 +13,13 @@ const spriteGlob = path.join(sourceDir, '*.svg')
 /**
  *
  */
-export const build: gulp.TaskFunction = (done) => {
+gulp.task('build:sprite', (done) => {
   gulp.series(compiler(spriteGlob, outputDir))(done)
-}
+})
 
 /**
  *
  */
-export const start: gulp.TaskFunction = () => {
+gulp.task('start:sprite', () => {
   watch(spriteGlob, compiler(spriteGlob, outputDir))
-}
+})

@@ -13,13 +13,13 @@ const faviconGlob = path.join(sourceDir, '**', '*.*')
 /**
  *
  */
-export const build: gulp.TaskFunction = (done) => {
+gulp.task('build:favicon', (done) => {
   gulp.series(compiler(faviconGlob, outputDir))(done)
-}
+})
 
 /**
  *
  */
-export const start: gulp.TaskFunction = () => {
+gulp.task('start:favicon', () => {
   watch(faviconGlob, devCompiler(faviconGlob, outputDir))
-}
+})

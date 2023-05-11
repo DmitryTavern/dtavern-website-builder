@@ -25,18 +25,18 @@ const scriptsVendorGlob = path.join(sourceVendorDir, '*.js')
 /**
  *
  */
-export const build: gulp.TaskFunction = (done) => {
+gulp.task('build:scripts', (done) => {
   gulp.series(
     compiler(scriptsGlob, outputDir),
     compiler(scriptsPagesGlob, outputPagesDir),
     vendorCompiler(scriptsVendorGlob, outputVendorDir)
   )(done)
-}
+})
 
 /**
  *
  */
-export const start: gulp.TaskFunction = () => {
+gulp.task('start:scripts', () => {
   const fn = devCompiler(scriptsGlob, outputDir)
   const fnPages = devCompiler(scriptsPagesGlob, outputPagesDir)
   const fnVendor = devVendorCompiler(scriptsVendorGlob, outputVendorDir)
@@ -44,4 +44,4 @@ export const start: gulp.TaskFunction = () => {
   watch(scriptsGlob, gulp.series(fn, fnPages))
   watch(scriptsVendorGlob, fnVendor)
   watchViews(scriptsPagesGlob, outputPagesDir, devCompiler)
-}
+})
