@@ -31,6 +31,26 @@ export interface Environment {
   devserver: browserSync.Options
 
   /**
+   *
+   */
+  components: {
+    /**
+     *
+     */
+    sourceDir: string
+
+    /**
+     *
+     */
+    configDir: string
+
+    /**
+     *
+     */
+    configFile: string
+  }
+
+  /**
    * Defines settings for processing html/pug files.
    */
   html: {

@@ -1,5 +1,6 @@
 // Setup environment
 import '@shared/environment'
+import '@shared/components'
 
 // Import gulp tasks
 import './particles/html'
