@@ -41,7 +41,19 @@ gulp.task('start:scripts', () => {
   const fnPages = devCompiler(scriptsPagesGlob, outputPagesDir)
   const fnVendor = devVendorCompiler(scriptsVendorGlob, outputVendorDir)
 
+  fn.displayName = '[scripts]: compile scripts'
+
+  fnPages.displayName = '[scripts]: compile pages scripts'
+
+  fnVendor.displayName = '[scripts]: compile vendors'
+
   watch(scriptsGlob, gulp.series(fn, fnPages))
+
   watch(scriptsVendorGlob, fnVendor)
-  watchViews(scriptsPagesGlob, outputPagesDir, devCompiler)
+
+  watchViews(scriptsPagesGlob, (pageName, pagePath) => {
+    const fnPage = devCompiler(pagePath, outputPagesDir)
+    fnPage.displayName = `[scripts]: compile ${pageName} page`
+    return fnPage
+  })
 })

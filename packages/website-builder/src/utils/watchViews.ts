@@ -1,6 +1,12 @@
 import path from 'path'
 import gulp from 'gulp'
-import { Compiler } from '../../types'
+
+/**
+ *
+ */
+interface ViewsWatcherCallback {
+  (pageName: string, pagePath: string): gulp.TaskFunction
+}
 
 /**
  *
@@ -21,8 +27,7 @@ const getBasename = (str: string) => {
  */
 export const watchViews = (
   glob: gulp.Globs,
-  output: string,
-  compiler: Compiler
+  callback: ViewsWatcherCallback
 ) => {
   gulp
     .watch(glob, {
@@ -32,11 +37,12 @@ export const watchViews = (
     })
     .on('add', (pagefile: string) => {
       const pagename = getBasename(pagefile)
-      const fn = compiler(pagefile, output)
 
-      fn.displayName = path.basename(pagefile)
-
-      watchers[pagename] = gulp.watch(pagefile, fn)
+      watchers[pagename] = gulp.watch(
+        pagefile,
+        { ignoreInitial: true },
+        callback(pagename, pagefile)
+      )
     })
     .on('unlink', (pagefile: string) => {
       const pagename = getBasename(pagefile)

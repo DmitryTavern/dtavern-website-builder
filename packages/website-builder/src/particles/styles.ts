@@ -31,6 +31,13 @@ gulp.task('start:styles', () => {
   const fn = devCompiler(stylesGlob, outputDir)
   const fnPages = devCompiler(stylesPagesGlob, outputPagesDir)
 
+  fn.displayName = '[styles]: compile scripts'
+
   watch(stylesGlob, gulp.series(fn, fnPages))
-  watchViews(stylesPagesGlob, outputPagesDir, devCompiler)
+
+  watchViews(stylesPagesGlob, (pageName, pagePath) => {
+    const fnPage = devCompiler(pagePath, outputPagesDir)
+    fnPage.displayName = `[styles]: compile ${pageName} page`
+    return fnPage
+  })
 })

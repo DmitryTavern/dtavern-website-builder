@@ -49,7 +49,7 @@ export const devCompiler: Compiler = (input, output) => () => {
   return gulp
     .src(input)
     .pipe(plumber())
-    .pipe(sassGulp())
+    .pipe(sassGulp().on('error', sassGulp.logError))
     .pipe(gcmq())
     .pipe(rename(renameSettigns))
     .pipe(gulp.dest(output))

@@ -25,6 +25,13 @@ gulp.task('build:html', (done) => {
 gulp.task('start:html', () => {
   const fn = devCompiler(viewsPagesGlob, outputDir)
 
+  fn.displayName = '[html]: compile pages'
+
   watch([viewsGlob, `!${viewsPagesGlob}`], fn)
-  watchViews(viewsPagesGlob, outputDir, devCompiler)
+
+  watchViews(viewsPagesGlob, (pageName, pagePath) => {
+    const fnPage = devCompiler(pagePath, outputDir)
+    fnPage.displayName = `[html]: compile ${pageName} page`
+    return fnPage
+  })
 })

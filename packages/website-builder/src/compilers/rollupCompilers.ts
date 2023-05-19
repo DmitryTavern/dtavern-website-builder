@@ -49,16 +49,21 @@ export const createBundle = (
   output: string,
   config: rollup.OutputOptions[]
 ) => {
-  rollup.rollup({ input }).then((bundle) => {
-    for (const options of config) {
-      bundle.generate(options).then((payload) => {
-        for (const chunk of payload.output) {
-          if (chunk.type === 'chunk') {
-            fs.mkdirSync(output, { recursive: true })
-            fs.writeFileSync(path.join(output, chunk.fileName), chunk.code)
+  rollup
+    .rollup({ input })
+    .then((bundle) => {
+      for (const options of config) {
+        bundle.generate(options).then((payload) => {
+          for (const chunk of payload.output) {
+            if (chunk.type === 'chunk') {
+              fs.mkdirSync(output, { recursive: true })
+              fs.writeFileSync(path.join(output, chunk.fileName), chunk.code)
+            }
           }
-        }
-      })
-    }
-  })
+        })
+      }
+    })
+    .catch((e) => {
+      console.log(e)
+    })
 }
