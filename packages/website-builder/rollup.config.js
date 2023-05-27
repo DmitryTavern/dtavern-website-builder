@@ -17,7 +17,7 @@ const globals = {
   // Styles
   sass: 'sass',
   'gulp-sass': 'gulp-sass',
-  'gulp-cssnano': 'gulp-cssnano',
+  'gulp-clean-css': 'gulp-clean-css',
   'gulp-autoprefixer': 'gulp-autoprefixer',
   'gulp-group-css-media-queries': 'gulp-group-css-media-queries',
 
